@@ -1,0 +1,6 @@
+# Development artifacts
+bin
+obj
+
+# Editor settings
+.vscode
