@@ -7,7 +7,7 @@ namespace std
   void assert(bool condition)
   {
     if (!condition)
-      throw "❌ Assestion error: the condition was false.";
+      throw "❌ Assertion error: the condition was false.";
   }
 
   /// @brief Throws `msg` when the `condition` is `false`.
