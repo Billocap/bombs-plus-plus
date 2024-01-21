@@ -2,6 +2,8 @@
 #define GRID_H
 
 #include <vector>
+#include <cstdlib>
+#include <time.h>
 
 namespace std
 {
@@ -39,7 +41,8 @@ namespace std
     Grid(int width, int height);
 
     GridCell *get_cell(int x, int y);
-    void place_bomb(int x, int y);
+    bool place_bomb_at(int x, int y);
+    void place_bombs(int amount);
 
   private:
     /// @brief Collection of cells this grid contains.

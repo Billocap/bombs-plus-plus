@@ -25,6 +25,8 @@ namespace std
     this->height = height;
     this->cells = vector<GridCell *>();
 
+    srand((unsigned)time(NULL));
+
     for (auto y = 0; y < height; y++)
     {
       for (auto x = 0; x < width; x++)
@@ -50,25 +52,58 @@ namespace std
   /// @brief Places a bomb in the specified grid position.
   /// @param x X coordinate to place the bomb in.
   /// @param y Y coordinate to place the bomb in.
-  void Grid::place_bomb(int x, int y)
+  /// @returns A boolean that defines if the bomb was placed.
+  bool Grid::place_bomb_at(int x, int y)
   {
     auto c = this->get_cell(x, y);
-    c->has_bomb = true;
 
-    for (auto x_off = -1; x_off < 2; x_off++)
+    if (c->has_bomb)
     {
-      for (auto y_off = -1; y_off < 2; y_off++)
+      return false;
+    }
+    else
+    {
+      c->has_bomb = true;
+
+      for (auto x_off = -1; x_off < 2; x_off++)
       {
-        auto _x = x + x_off;
-        auto _y = y + y_off;
-
-        if (_x >= 0 && _y >= 0)
+        for (auto y_off = -1; y_off < 2; y_off++)
         {
-          auto c = this->get_cell(_x, _y);
+          auto _x = x + x_off;
+          auto _y = y + y_off;
 
-          c->bomb_count++;
+          if (_x >= 0 && _y >= 0 && _x < this->width && _y < this->height)
+          {
+            auto c = this->get_cell(_x, _y);
+
+            c->bomb_count++;
+          }
         }
       }
+
+      return true;
+    }
+  }
+
+  /// @brief Place a certain amount of bombs in random positions.
+  /// @param amount Number of bombs to place.
+  void Grid::place_bombs(int amount)
+  {
+
+    int n = 0;
+
+    while (n < amount)
+    {
+      int x = rand() % this->width;
+      int y = rand() % this->height;
+
+      while (!this->place_bomb_at(x, y))
+      {
+        x = rand() % this->width;
+        y = rand() % this->height;
+      }
+
+      n++;
     }
   }
   // #endregion Grid
