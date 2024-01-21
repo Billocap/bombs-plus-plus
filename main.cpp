@@ -1,10 +1,11 @@
-#include <iostream>
 #include <ncurses.h>
+#include <string>
 
 #include "lib/assert.h"
 #include "lib/grid.h"
-#include "lib/gridui.h"
+#include "lib/ui.h"
 #include "lib/game.h"
+#include "lib/io.h"
 
 using namespace std;
 
@@ -26,11 +27,19 @@ int main()
 
   curs_set(0);
 
+  MenuDrawer menu;
+
+  menu.add_option("Continue");
+  menu.add_option("New game");
+  menu.add_option("Exit");
+
+  menu.focus(0);
+
   while (main_game.is_running())
   {
     clear();
 
-    drawer.draw(&grid);
+    menu.draw();
 
     refresh();
 
