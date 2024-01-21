@@ -4,11 +4,16 @@
 #include "lib/assert.h"
 #include "lib/grid.h"
 #include "lib/gridui.h"
+#include "lib/game.h"
 
 using namespace std;
 
 int main()
 {
+  Game main_game;
+
+  main_game.start();
+
   Grid grid(4, 4);
 
   grid.place_bombs(10);
@@ -19,15 +24,25 @@ int main()
 
   int w, h;
 
-  getmaxyx(main_window, h, w);
+  curs_set(0);
 
-  cout << w << "x" << h << endl;
+  while (main_game.is_running())
+  {
+    clear();
 
-  clear();
+    drawer.draw(&grid);
 
-  drawer.draw(&grid);
+    refresh();
 
-  refresh();
+    auto c = getch();
+
+    if (c != 0)
+    {
+      main_game.stop();
+    }
+  }
+
+  endwin();
 
   return 0;
 }
