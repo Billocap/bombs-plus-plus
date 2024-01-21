@@ -89,7 +89,6 @@ namespace std
   /// @param amount Number of bombs to place.
   void Grid::place_bombs(int amount)
   {
-
     int n = 0;
 
     while (n < amount)

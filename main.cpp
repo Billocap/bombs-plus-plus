@@ -1,35 +1,33 @@
 #include <iostream>
-#include <string>
+#include <ncurses.h>
 
 #include "lib/assert.h"
 #include "lib/grid.h"
+#include "lib/gridui.h"
 
 using namespace std;
 
 int main()
 {
-  Grid g(4, 4);
+  Grid grid(4, 4);
 
-  g.place_bombs(10);
+  grid.place_bombs(10);
 
-  for (auto y = 0; y < g.height; y++)
-  {
-    for (auto x = 0; x < g.width; x++)
-    {
-      auto c = g.get_cell(x, y);
+  GridDrawer drawer;
 
-      if (c->has_bomb)
-      {
-        cout << "* ";
-      }
-      else
-      {
-        cout << c->bomb_count << " ";
-      }
-    }
+  WINDOW *main_window = initscr();
 
-    cout << endl;
-  }
+  int w, h;
+
+  getmaxyx(main_window, h, w);
+
+  cout << w << "x" << h << endl;
+
+  clear();
+
+  drawer.draw(&grid);
+
+  refresh();
 
   return 0;
 }
