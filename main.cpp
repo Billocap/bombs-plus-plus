@@ -10,7 +10,7 @@ int main()
 {
   Grid g(4, 4);
 
-  // g.place_bomb(1, 1);
+  g.place_bomb(1, 1);
 
   for (auto y = 0; y < g.height; y++)
   {

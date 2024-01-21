@@ -29,9 +29,9 @@ namespace std
     {
       for (auto x = 0; x < width; x++)
       {
-        GridCell c(this, x, y);
+        auto c = new GridCell(this, x, y);
 
-        this->cells.push_back(&c);
+        this->cells.push_back(c);
       }
     }
   }
