@@ -2,7 +2,6 @@
 #include <string>
 #include <iostream>
 
-#include "lib/assert.h"
 #include "lib/grid.h"
 #include "lib/ui.h"
 #include "lib/game.h"
@@ -36,12 +35,16 @@ int main()
   menu.add_option("New game", new GoToOption(&curr_menu, 1));
   menu.add_option("Exit", new ExitOption(&main_game));
 
+  menu.drawer->focus(0);
+
   Menu diff_menu;
 
   diff_menu.add_option("Easy", new NewGameOption(&main_game, EASY, &curr_menu, 2));
   diff_menu.add_option("Medium", new NewGameOption(&main_game, MEDIUM, &curr_menu, 2));
   diff_menu.add_option("Hard", new NewGameOption(&main_game, HARD, &curr_menu, 2));
   diff_menu.add_option("Back", new GoToOption(&curr_menu, 0));
+
+  diff_menu.drawer->focus(0);
 
   while (main_game.is_running())
   {
