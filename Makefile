@@ -53,12 +53,12 @@ prod: prep $(PROJ_NAME) clean
 # Main compilation
 dbg.out: $(DBG_FILES)
 	@echo " Compilling project binary ..."
-	$(CC) $^ -o $(BIN_FOLDER)/$@ -l ncurses $(DEBUG_FLAGS)
+	$(CC) $^ -o $(BIN_FOLDER)/$@ -l ncursesw $(DEBUG_FLAGS)
 	@echo " Project binary created"
 
 $(PROJ_NAME): $(OBJ_FILES)
 	@echo " Compilling project binary ..."
-	@$(CC) $^ -o $(BIN_FOLDER)/$@ -l ncurses $(FLAGS)
+	@$(CC) $^ -o $(BIN_FOLDER)/$@ -l ncursesw $(FLAGS)
 	@echo " Project binary created"
 #--------------------
 

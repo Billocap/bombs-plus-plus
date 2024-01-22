@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include <ncurses.h>
+#include <ncursesw/ncurses.h>
 
 #include "io.h"
 

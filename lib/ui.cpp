@@ -14,15 +14,19 @@ GridDrawer::GridDrawer(int width, int height)
 /// @brief Draws a grid to the console.
 void GridDrawer::draw()
 {
+  attron(A_ALTCHARSET);
+
+  clear();
+
   for (auto y = 0; y < this->height; y++)
   {
     for (auto x = 0; x < this->width; x++)
     {
-      move(y, x * 2);
-
-      printw("▒▒");
+      mvprintw(y, x * 2, "░░");
     }
   }
+
+  attroff(A_ALTCHARSET);
 
   printw("\n");
 }

@@ -1,4 +1,6 @@
-#include <ncurses.h>
+#define _XOPEN_SOURCE_EXTENDED
+
+#include <ncursesw/ncurses.h>
 #include <string>
 #include <iostream>
 
@@ -13,6 +15,8 @@ using namespace std;
 
 int main()
 {
+  setlocale(LC_ALL, "en_US.UTF-8");
+
   Game main_game;
 
   main_game.start();
