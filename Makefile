@@ -2,7 +2,7 @@
 CC=g++
 
 # Project name
-PROJ_NAME=template
+PROJ_NAME=bombs++
 
 # Necessary folders
 OBJ_FOLDER=./obj
@@ -10,6 +10,8 @@ BIN_FOLDER=./bin
 
 # Entry file
 ENTRY=main
+# Flags only used when compiling the entry file
+ENTRY_FLAGS=-l ncursesw
 
 FLAGS=-pedantic
 DEBUG_FLAGS=$(FLAGS) -g
@@ -53,12 +55,12 @@ prod: prep $(PROJ_NAME) clean
 # Main compilation
 dbg.out: $(DBG_FILES)
 	@echo " Compilling project binary ..."
-	$(CC) $^ -o $(BIN_FOLDER)/$@ -l ncursesw $(DEBUG_FLAGS)
+	$(CC) $^ -o $(BIN_FOLDER)/$@ $(ENTRY_FLAGS) $(DEBUG_FLAGS)
 	@echo " Project binary created"
 
 $(PROJ_NAME): $(OBJ_FILES)
 	@echo " Compilling project binary ..."
-	@$(CC) $^ -o $(BIN_FOLDER)/$@ -l ncursesw $(FLAGS)
+	@$(CC) $^ -o $(BIN_FOLDER)/$@ $(ENTRY_FLAGS) $(FLAGS)
 	@echo " Project binary created"
 #--------------------
 
