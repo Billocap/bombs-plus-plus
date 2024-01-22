@@ -5,6 +5,7 @@ namespace std
   void EmptyOption::execute() {}
 
   // #region ExitOption
+
   ExitOption::ExitOption(Game *game) : IMenuOption()
   {
     this->game = game;
@@ -14,9 +15,11 @@ namespace std
   {
     this->game->stop();
   }
+
   // #endregion ExitOption
 
   // #region GoToOption
+
   GoToOption::GoToOption(int *state, int id) : IMenuOption()
   {
     this->state = state;
@@ -27,9 +30,11 @@ namespace std
   {
     *(this->state) = this->id;
   }
+
   // #endregion GoToOption
 
   // #region NewGameOption
+
   NewGameOption::NewGameOption(Game *game, Difficulty diff, int *state, int id) : IMenuOption()
   {
     this->game = game;

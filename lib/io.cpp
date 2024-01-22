@@ -3,6 +3,7 @@
 namespace std
 {
   // #region FileIO
+
   /// @brief Reads a basic text file.
   /// @param path File path.
   /// @return A vector containing all of the lines in the file.
@@ -25,5 +26,6 @@ namespace std
 
     return data;
   }
+
   // #endregion FileIO
 }

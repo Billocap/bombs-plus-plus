@@ -3,6 +3,7 @@
 namespace std
 {
   // #region GridCell
+
   /// @brief Creates a nes cell at the specified coordinates.
   /// @param parent Grid object that contains this cell.
   /// @param x X position on the grid.
@@ -13,9 +14,11 @@ namespace std
     this->x = x;
     this->y = y;
   }
+
   // #endregion GridCell
 
   // #region Grid
+
   /// @brief Creates a new grid with the specified size.
   /// @param width Width for the grid.
   /// @param height Height for the grid.
@@ -106,5 +109,6 @@ namespace std
       n++;
     }
   }
+
   // #endregion Grid
 }

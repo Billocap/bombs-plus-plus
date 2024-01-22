@@ -3,6 +3,7 @@
 namespace std
 {
   // #region Game
+
   /// @brief Used to check if the game is running.
   /// @return The state of the game.
   bool Game::is_running()
@@ -57,5 +58,6 @@ namespace std
   {
     return this->grid;
   }
+
   // #endregion Game
 }

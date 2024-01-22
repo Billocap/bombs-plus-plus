@@ -3,6 +3,7 @@
 namespace std
 {
   // #region Menu
+
   Menu::Menu()
   {
     this->drawer = new MenuDrawer();
@@ -56,5 +57,6 @@ namespace std
       break;
     }
   }
+
   // #endregion Menu
 }

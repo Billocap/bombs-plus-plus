@@ -8,6 +8,7 @@
 #include "io.h"
 
 // #region Interfaces
+
 /// @brief Interface for a drawer class.
 class IDrawer
 {
@@ -26,6 +27,7 @@ public:
   /// @return The updated Y position.
   virtual int draw(int y, int x) = 0;
 };
+
 // #endregion Interfaces
 
 /// @brief Class for rendering a grid.
@@ -43,6 +45,7 @@ public:
 };
 
 // #region Menus
+
 class MenuDrawer;
 
 /// @brief Represents all the state for one option.
@@ -80,6 +83,7 @@ private:
   /// @brief List of options this menu has.
   std::vector<MenuOptionDrawer *> options;
 };
+
 // #endregion Menus
 
 #endif

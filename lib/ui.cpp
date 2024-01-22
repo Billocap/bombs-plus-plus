@@ -1,6 +1,7 @@
 #include "ui.h"
 
 // #region GridDrawer
+
 /// @brief Creates a new grid drawer.
 /// @param width This grids width.
 /// @param height This grids height.
@@ -25,10 +26,12 @@ void GridDrawer::draw()
 
   printw("\n");
 }
+
 // #endregion GridDrawer
 
 // #region Menus
 // #region MenuOptionDrawer
+
 /// @brief Creates a new menu option.
 /// @param label Label for this option.
 MenuOptionDrawer::MenuOptionDrawer(MenuDrawer *parent, std::string label)
@@ -66,9 +69,11 @@ int MenuOptionDrawer::draw(int y, int x)
 
   return y + 1;
 }
+
 // #endregion MenuOptionDrawer
 
 // #region MenuDrawer
+
 /// @brief Adds a new option to this drawer.
 /// @param label The new option's label.
 void MenuDrawer::add_option(std::string label)
@@ -149,5 +154,6 @@ void MenuDrawer::draw()
     attron(COLOR_PAIR(3));
   }
 }
+
 // #endregion MenuDrawer
 // #endregion Menus
