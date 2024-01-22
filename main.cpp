@@ -17,8 +17,6 @@ int main()
 
   main_game.start();
 
-  GridDrawer drawer;
-
   WINDOW *main_window = initscr();
 
   start_color();
@@ -39,9 +37,9 @@ int main()
 
   Menu diff_menu;
 
-  diff_menu.add_option("Easy", new NewGameOption(&main_game, EASY, &curr_menu, 2));
-  diff_menu.add_option("Medium", new NewGameOption(&main_game, MEDIUM, &curr_menu, 2));
-  diff_menu.add_option("Hard", new NewGameOption(&main_game, HARD, &curr_menu, 2));
+  diff_menu.add_option("Easy", new NewGameOption(&main_game, D_EASY, &curr_menu, 2));
+  diff_menu.add_option("Medium", new NewGameOption(&main_game, D_MEDIUM, &curr_menu, 2));
+  diff_menu.add_option("Hard", new NewGameOption(&main_game, D_HARD, &curr_menu, 2));
   diff_menu.add_option("Back", new GoToOption(&curr_menu, 0));
 
   diff_menu.drawer->focus(0);
@@ -69,11 +67,13 @@ int main()
       break;
 
     case 2:
-      drawer.draw(main_game.get_grid());
+      main_game.get_grid()->drawer->draw();
       break;
     }
 
     refresh();
+
+    attron(A_INVIS);
 
     auto c = getch();
 
@@ -87,11 +87,15 @@ int main()
       diff_menu.handle_input(c);
       break;
     }
+
+    attroff(A_INVIS);
   }
 
-  endwin();
+  attroff(A_INVIS);
 
   curs_set(1);
+
+  endwin();
 
   return 0;
 }

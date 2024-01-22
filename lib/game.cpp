@@ -28,21 +28,21 @@ namespace std
   {
     switch (diff)
     {
-    case EASY:
+    case D_EASY:
       this->grid = new Grid(8, 8);
 
       this->grid->place_bombs(10);
 
       break;
 
-    case MEDIUM:
+    case D_MEDIUM:
       this->grid = new Grid(8, 8);
 
       this->grid->place_bombs(20);
 
       break;
 
-    case HARD:
+    case D_HARD:
       this->grid = new Grid(6, 6);
 
       this->grid->place_bombs(10);

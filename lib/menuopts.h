@@ -7,14 +7,14 @@
 namespace std
 {
   /// @brief Represents a menu option that does nothing.
-  class EmptyOption : public MenuOption
+  class EmptyOption : public IMenuOption
   {
   public:
     void execute();
   };
 
   /// @brief Represents a menu option that exits the game.
-  class ExitOption : public MenuOption
+  class ExitOption : public IMenuOption
   {
   public:
     ExitOption(Game *game);
@@ -26,7 +26,7 @@ namespace std
   };
 
   /// @brief Represents a menu option that goes to another menu.
-  class GoToOption : public MenuOption
+  class GoToOption : public IMenuOption
   {
   public:
     GoToOption(int *state, int id);
@@ -39,7 +39,7 @@ namespace std
   };
 
   /// @brief Represents a menu options that starts a new game.
-  class NewGameOption : public MenuOption
+  class NewGameOption : public IMenuOption
   {
   public:
     NewGameOption(Game *game, Difficulty diff, int *state, int id);

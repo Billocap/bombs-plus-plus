@@ -9,7 +9,7 @@
 
 namespace std
 {
-  class MenuOption
+  class IMenuOption
   {
   public:
     virtual void execute() = 0;
@@ -22,7 +22,7 @@ namespace std
 
     Menu();
 
-    void add_option(string label, MenuOption *option);
+    void add_option(string label, IMenuOption *option);
     void pointer_up();
     void pointer_down();
     void execute();
@@ -31,7 +31,7 @@ namespace std
 
   private:
     int pointer = 0;
-    vector<MenuOption *> options;
+    vector<IMenuOption *> options;
   };
 }
 

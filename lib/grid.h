@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <time.h>
 
+#include "ui.h"
+
 namespace std
 {
   class Grid;
@@ -33,6 +35,8 @@ namespace std
   class Grid
   {
   public:
+    /// @brief Renderer for this grid.
+    GridDrawer *drawer;
     /// @brief Width of the grid in cells.
     int width;
     /// @brief Height of the grid in cells.

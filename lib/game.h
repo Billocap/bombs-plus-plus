@@ -8,10 +8,10 @@ namespace std
 {
   enum Difficulty
   {
-    EASY,
-    MEDIUM,
-    HARD,
-    CUSTOM
+    D_EASY,
+    D_MEDIUM,
+    D_HARD,
+    D_CUSTOM
   };
 
   class Game

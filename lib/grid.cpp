@@ -23,6 +23,7 @@ namespace std
   {
     this->width = width;
     this->height = height;
+    this->drawer = new GridDrawer(width, height);
     this->cells = vector<GridCell *>();
 
     srand((unsigned)time(NULL));

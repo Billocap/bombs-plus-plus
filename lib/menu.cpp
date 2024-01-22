@@ -2,16 +2,13 @@
 
 namespace std
 {
-  // #region MenuOption
-  // #endregion MenuOption
-
   // #region Menu
   Menu::Menu()
   {
     this->drawer = new MenuDrawer();
   }
 
-  void Menu::add_option(string label, MenuOption *option)
+  void Menu::add_option(string label, IMenuOption *option)
   {
     this->drawer->add_option(label);
 
