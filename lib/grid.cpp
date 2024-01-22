@@ -52,7 +52,7 @@ namespace std
   /// @brief Places a bomb in the specified grid position.
   /// @param x X coordinate to place the bomb in.
   /// @param y Y coordinate to place the bomb in.
-  /// @returns A boolean that defines if the bomb was placed.
+  /// @return A boolean that defines if the bomb was placed.
   bool Grid::place_bomb_at(int x, int y)
   {
     auto c = this->get_cell(x, y);

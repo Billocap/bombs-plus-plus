@@ -36,6 +36,9 @@ private:
 class MenuDrawer
 {
 public:
+  int width;
+  int height;
+
   void add_option(std::string label);
   void focus(int id);
   void blur(int id);
@@ -43,7 +46,7 @@ public:
 
 private:
   /// @brief Current option in focus.
-  int focused = -1;
+  int focused;
   /// @brief List of options this menu has.
   std::vector<MenuOptionDrawer *> options;
 };

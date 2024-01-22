@@ -44,14 +44,12 @@ void MenuOptionDrawer::blur()
 /// @return This option's label.
 std::string MenuOptionDrawer::get_draw_label()
 {
-  auto label = this->label;
-
   if (this->is_focused)
   {
-    label = "[" + label + "]";
+    return "[" + this->label + "]";
   }
 
-  return label;
+  return this->label;
 }
 // #endregion MenuOptionDrawer
 
@@ -60,9 +58,7 @@ std::string MenuOptionDrawer::get_draw_label()
 /// @param label The new option's label.
 void MenuDrawer::add_option(std::string label)
 {
-  auto op = new MenuOptionDrawer(label);
-
-  this->options.push_back(op);
+  this->options.push_back(new MenuOptionDrawer(label));
 }
 
 /// @brief Focus on the desired option.
@@ -72,10 +68,9 @@ void MenuDrawer::focus(int id)
   if (this->focused >= 0)
   {
     this->blur(this->focused);
-
-    this->focused = id;
   }
 
+  this->focused = id;
   this->options[id]->focus();
 }
 
@@ -91,34 +86,56 @@ void MenuDrawer::blur(int id)
 void MenuDrawer::draw()
 {
   int y = 0;
+  int x = this->width / 2;
+
+  init_pair(1, COLOR_YELLOW, COLOR_BLACK);
 
   auto banner_data = std::read_file("assets/banner");
 
+  attron(COLOR_PAIR(1));
+
   for (auto line : banner_data)
   {
-    move(y, 0);
+    if (y >= this->height)
+      break;
 
-    printw(line.c_str());
+    mvprintw(y, x - line.length() / 2, line.c_str());
 
     y++;
   }
+
+  init_pair(3, COLOR_WHITE, COLOR_BLACK);
+
+  attron(COLOR_PAIR(3));
 
   y += 2;
 
   for (auto option : this->options)
   {
+    if (y >= this->height)
+      break;
+
     auto line = option->get_draw_label();
 
-    move(y, 0);
-    printw(line.c_str());
+    mvprintw(y, x - line.length() / 2, line.c_str());
 
     y++;
   }
 
   y += 2;
 
-  move(y, 0);
-  printw("Created by Gabriel Quintino 2023");
+  if (y < this->height)
+  {
+    std::string line = "Created by Gabriel Quintino 2023";
+
+    init_pair(2, COLOR_BLUE, COLOR_BLACK);
+
+    mvprintw(y, x - line.length() / 2, "Created by ");
+    attron(COLOR_PAIR(2));
+    printw("Gabriel Quintino");
+    attron(COLOR_PAIR(3));
+    printw(" 2023");
+  }
 }
 // #endregion MenuDrawer
 // #endregion Menus
