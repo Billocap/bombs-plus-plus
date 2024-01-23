@@ -1,5 +1,52 @@
 #include "ui.h"
 
+// #region TextBanner
+
+/// @brief Creates a new text banner.
+/// @param path Path to the file that contains the banner's data.
+TextBanner::TextBanner(std::string path)
+{
+  this->data = std::read_file(path);
+}
+
+/// @brief Draws this banner in the specified position.
+/// @param y Y position to draw at.
+/// @param x X position to draw at.
+/// @return The updated Y position.
+int TextBanner::draw(int y, int x)
+{
+  int _y = 0;
+
+  init_pair(100, COLOR_YELLOW, COLOR_BLACK);
+
+  attron(COLOR_PAIR(100) | A_DIM);
+
+  for (auto line : this->data)
+  {
+    if (_y >= this->clip_height)
+      break;
+
+    mvprintw(y + _y, x - line.length() / 2, line.c_str());
+
+    _y++;
+  }
+  attroff(COLOR_PAIR(100) | A_DIM);
+
+  return y + _y;
+}
+
+/// @brief Defines the max `width` and `height`.
+/// @param height Max height.
+/// @param width Max width.
+void TextBanner::resize_clip_box(int height, int width)
+{
+  this->clip_width = width;
+  this->clip_height = height;
+}
+
+// #endregion TextBanner
+
+// #region Grid
 // #region GridDrawer
 
 /// @brief Creates a new grid drawer.
@@ -9,39 +56,107 @@ GridDrawer::GridDrawer(int width, int height)
 {
   this->width = width;
   this->height = height;
+
+  for (auto y = 0; y < height; y++)
+  {
+    for (auto x = 0; x < width; x++)
+    {
+      auto c = new GridCellDrawer(x, y);
+
+      this->cells.push_back(c);
+    }
+  }
 }
 
-/// @brief Draws a grid to the console.
-void GridDrawer::draw()
+/// @brief Draws this grid in the specified position.
+/// @param y Y position to draw at.
+/// @param x X position to draw at.
+/// @return The updated Y position.
+int GridDrawer::draw(int y, int x)
 {
   attron(A_ALTCHARSET);
 
-  clear();
-
-  for (auto y = 0; y < this->height; y++)
+  for (auto cell : this->cells)
   {
-    for (auto x = 0; x < this->width; x++)
-    {
-      mvprintw(y, x * 2, "░░");
-    }
+    cell->draw(y, x - this->width);
   }
 
   attroff(A_ALTCHARSET);
 
-  printw("\n");
+  return y + 1;
+}
+
+void GridDrawer::focus(int x, int y)
+{
+  if (this->focused != NULL)
+  {
+    this->focused->blur();
+  }
+
+  int i = y * this->width + x;
+
+  this->cells[i]->focus();
+  this->focused = this->cells[i];
+}
+
+void GridDrawer::blur(int x, int y)
+{
+  if (this->focused != NULL)
+  {
+    this->focused->blur();
+  }
+
+  this->focused = NULL;
 }
 
 // #endregion GridDrawer
+
+// #region GridCellDrawer
+
+GridCellDrawer::GridCellDrawer(int x, int y)
+{
+  this->x = x;
+  this->y = y;
+}
+
+int GridCellDrawer::draw(int y, int x)
+{
+  if (this->is_focused)
+  {
+    init_pair(20000, COLOR_BLACK, COLOR_YELLOW);
+
+    attron(COLOR_PAIR(20000));
+  }
+
+  mvprintw(y + this->y, x + this->x * 2, "░░");
+
+  if (this->is_focused)
+    attroff(COLOR_PAIR(20000));
+
+  return 0;
+}
+
+void GridCellDrawer::focus()
+{
+  this->is_focused = true;
+}
+
+void GridCellDrawer::blur()
+{
+  this->is_focused = false;
+}
+
+// #region GridCellDrawer
+// #endregion Grid
 
 // #region Menus
 // #region MenuOptionDrawer
 
 /// @brief Creates a new menu option.
 /// @param label Label for this option.
-MenuOptionDrawer::MenuOptionDrawer(MenuDrawer *parent, std::string label)
+MenuOptionDrawer::MenuOptionDrawer(std::string label)
 {
   this->label = label;
-  this->parent = parent;
 }
 
 /// @brief Marks this option as in focus.
@@ -82,7 +197,7 @@ int MenuOptionDrawer::draw(int y, int x)
 /// @param label The new option's label.
 void MenuDrawer::add_option(std::string label)
 {
-  this->options.push_back(new MenuOptionDrawer(this, label));
+  this->options.push_back(new MenuOptionDrawer(label));
 }
 
 /// @brief Focus on the desired option.
@@ -106,39 +221,33 @@ void MenuDrawer::blur(int id)
   this->options[id]->blur();
 }
 
-/// @brief Draws this menu.
-void MenuDrawer::draw()
+void MenuDrawer::resize_clip_box(int height, int width)
 {
-  int y = this->height / 4;
-  int x = this->width / 2;
+  if (this->banner != NULL)
+    this->banner->resize_clip_box(height, width);
 
-  init_pair(1, COLOR_YELLOW, COLOR_BLACK);
+  this->clip_width = width;
+  this->clip_height = height;
+}
 
-  auto banner_data = std::read_file("assets/banner");
+/// @brief Draws this menu in the specified position.
+/// @param y Y coordinate to draw at.
+/// @param x X coordinate to draw at.
+/// @return The updated Y position.
+int MenuDrawer::draw(int y, int x)
+{
+  if (this->banner != NULL)
+    y = this->banner->draw(y, x);
 
-  attron(COLOR_PAIR(1) | A_DIM);
+  init_pair(1, COLOR_WHITE, COLOR_BLACK);
 
-  for (auto line : banner_data)
-  {
-    if (y >= this->height)
-      break;
-
-    mvprintw(y, x - line.length() / 2, line.c_str());
-
-    y++;
-  }
-
-  init_pair(3, COLOR_WHITE, COLOR_BLACK);
-
-  attroff(A_DIM);
-
-  attron(COLOR_PAIR(3));
+  attron(COLOR_PAIR(1));
 
   y += 2;
 
   for (auto option : this->options)
   {
-    if (y >= this->height)
+    if (y >= this->clip_height)
       break;
 
     y = option->draw(y, x);
@@ -146,7 +255,7 @@ void MenuDrawer::draw()
 
   y += 2;
 
-  if (y < this->height)
+  if (y < this->clip_height)
   {
     std::string line = "Created by Gabriel Quintino";
 
@@ -155,8 +264,17 @@ void MenuDrawer::draw()
     mvprintw(y, x - line.length() / 2, "Created by ");
     attron(COLOR_PAIR(2));
     printw("Gabriel Quintino");
-    attron(COLOR_PAIR(3));
+    attron(COLOR_PAIR(1));
   }
+
+  return y + 1;
+}
+
+/// @brief Sets the banner for this menu.
+/// @param banner The banner object.
+void MenuDrawer::set_banner(TextBanner *banner)
+{
+  this->banner = banner;
 }
 
 // #endregion MenuDrawer

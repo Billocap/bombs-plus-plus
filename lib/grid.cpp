@@ -5,17 +5,67 @@ namespace std
   // #region GridCell
 
   /// @brief Creates a nes cell at the specified coordinates.
-  /// @param parent Grid object that contains this cell.
   /// @param x X position on the grid.
   /// @param y Y position on the grid.
-  GridCell::GridCell(Grid *parent, int x, int y)
+  GridCell::GridCell(int x, int y)
   {
-    this->parent = parent;
     this->x = x;
     this->y = y;
   }
 
   // #endregion GridCell
+
+  // #region GridPointer
+
+  /// @brief Creates a new grid pointer.
+  /// @param parent Grid object that contains this pointer.
+  GridPointer::GridPointer(Grid *parent)
+  {
+    this->parent = parent;
+  }
+
+  /// @brief Moves the pointer up one cell.
+  void GridPointer::go_up()
+  {
+    this->y = (this->parent->height + this->y - 1) % this->parent->height;
+  }
+
+  /// @brief Moves the pointer down one cell.
+  void GridPointer::go_down()
+  {
+    this->y = (this->y + 1) % this->parent->height;
+  }
+
+  /// @brief Moves the pointer left one cell.
+  void GridPointer::go_left()
+  {
+    this->x = (this->parent->width + this->x - 1) % this->parent->width;
+  }
+
+  /// @brief Moves the pointer right one cell.
+  void GridPointer::go_right()
+  {
+    this->x = (this->x + 1) % this->parent->width;
+  }
+
+  /// @brief Returns the current selected cell.
+  /// @return O pointer to the current selected cell.
+  GridCell *GridPointer::get_cell()
+  {
+    return this->parent->get_cell(this->x, this->y);
+  }
+
+  int GridPointer::get_x()
+  {
+    return this->x;
+  }
+
+  int GridPointer::get_y()
+  {
+    return this->y;
+  }
+
+  // #endregion GridPointer
 
   // #region Grid
 
@@ -26,6 +76,7 @@ namespace std
   {
     this->width = width;
     this->height = height;
+    this->pointer = new GridPointer(this);
     this->drawer = new GridDrawer(width, height);
     this->cells = vector<GridCell *>();
 
@@ -35,7 +86,7 @@ namespace std
     {
       for (auto x = 0; x < width; x++)
       {
-        auto c = new GridCell(this, x, y);
+        auto c = new GridCell(x, y);
 
         this->cells.push_back(c);
       }
@@ -108,6 +159,40 @@ namespace std
 
       n++;
     }
+  }
+
+  /// @brief Handles keyboard input for a game grid.
+  /// @param key ASCII code for the key pressed.
+  void Grid::handle_input(int key)
+  {
+    switch (key)
+    {
+    case IO_KEY_UP:
+      this->pointer->go_up();
+      break;
+
+    case IO_KEY_DOWN:
+      this->pointer->go_down();
+      break;
+
+    case IO_KEY_LEFT:
+      this->pointer->go_left();
+      break;
+
+    case IO_KEY_RIGHT:
+      this->pointer->go_right();
+      break;
+
+    case IO_KEY_CONFIRM:
+      this->pointer->get_cell();
+      break;
+
+    case IO_KEY_ACCENT:
+      this->pointer->get_cell();
+      break;
+    }
+
+    this->drawer->focus(this->pointer->get_x(), this->pointer->get_y());
   }
 
   // #endregion Grid

@@ -15,7 +15,7 @@ namespace std
     virtual void execute() = 0;
   };
 
-  class Menu
+  class Menu : public IInputHandler
   {
   public:
     MenuDrawer *drawer;

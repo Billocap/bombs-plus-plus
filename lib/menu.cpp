@@ -52,7 +52,7 @@ namespace std
       this->pointer_down();
       break;
 
-    case IO_KEY_ENTER:
+    case IO_KEY_CONFIRM:
       this->execute();
       break;
     }

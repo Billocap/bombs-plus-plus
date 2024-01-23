@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <time.h>
 
+#include "io.h"
 #include "ui.h"
 
 namespace std
@@ -24,15 +25,35 @@ namespace std
     /// @brief How many neighbors of this cell has a bomb.
     int bomb_count = 0;
 
-    GridCell(Grid *parent, int x, int y);
+    GridCell(int x, int y);
+  };
+
+  /// @brief The grid pointer marks the current selected cell.
+  class GridPointer
+  {
+  public:
+    GridPointer(Grid *parent);
+
+    void go_left();
+    void go_right();
+    void go_up();
+    void go_down();
+    GridCell *get_cell();
+    int get_x();
+    int get_y();
 
   private:
-    /// @brief Grid object that contains this cell.
+    /// @brief Pointers X coordinate.
+    int x = 0;
+    /// @brief Pointers Y coordinate.
+    int y = 0;
+
+    /// @brief Grid object this pointer belongs to.
     Grid *parent;
   };
 
   /// @brief A grid is a collection of tiles.
-  class Grid
+  class Grid : public IInputHandler
   {
   public:
     /// @brief Renderer for this grid.
@@ -47,10 +68,13 @@ namespace std
     GridCell *get_cell(int x, int y);
     bool place_bomb_at(int x, int y);
     void place_bombs(int amount);
+    void handle_input(int key);
 
   private:
     /// @brief Collection of cells this grid contains.
     vector<GridCell *> cells;
+    /// @brief Grid pointer keeps track of the current selected cell.
+    GridPointer *pointer;
   };
 }
 
