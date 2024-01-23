@@ -63,7 +63,7 @@ public:
   void focus();
   void blur();
   void flag();
-  void reveal();
+  void reveal(int count, bool has_bomb);
 
 private:
   bool is_focused = false;
@@ -95,7 +95,7 @@ public:
   void focus(int x, int y);
   void blur(int x, int y);
   void flag(int x, int y);
-  void reveal(int x, int y);
+  void reveal(int x, int y, int count, bool has_bomb);
 
 private:
   std::vector<GridCellDrawer *> cells;

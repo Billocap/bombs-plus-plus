@@ -74,6 +74,7 @@ namespace std
 
     GridCell *get_cell(int x, int y);
     bool place_bomb_at(int x, int y);
+    vector<GridCell *> get_neighbors(int x, int y);
     void place_bombs(int amount);
     void handle_input(int key);
     void reveal();

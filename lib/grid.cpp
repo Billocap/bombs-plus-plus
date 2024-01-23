@@ -132,6 +132,34 @@ namespace std
     return this->cells[i];
   }
 
+  /// @brief Gets all the cells the neighbors the specified cell.
+  /// @param x X coordinate of the cell to get the neighbors.
+  /// @param y Y coordinate of the cell to get the neighbors.
+  /// @return A vector containing the neighbors.
+  vector<GridCell *> Grid::get_neighbors(int x, int y)
+  {
+    vector<GridCell *> neighborhood;
+
+    for (auto x_off = -1; x_off < 2; x_off++)
+    {
+      for (auto y_off = -1; y_off < 2; y_off++)
+      {
+        if (x_off == 0 && y_off == 0)
+          continue;
+
+        auto _x = x + x_off;
+        auto _y = y + y_off;
+
+        if (_x >= 0 && _y >= 0 && _x < this->width && _y < this->height)
+        {
+          neighborhood.push_back(this->get_cell(_x, _y));
+        }
+      }
+    }
+
+    return neighborhood;
+  }
+
   /// @brief Places a bomb in the specified grid position.
   /// @param x X coordinate to place the bomb in.
   /// @param y Y coordinate to place the bomb in.
@@ -148,20 +176,9 @@ namespace std
     {
       c->has_bomb = true;
 
-      for (auto x_off = -1; x_off < 2; x_off++)
+      for (auto neighbor : this->get_neighbors(x, y))
       {
-        for (auto y_off = -1; y_off < 2; y_off++)
-        {
-          auto _x = x + x_off;
-          auto _y = y + y_off;
-
-          if (_x >= 0 && _y >= 0 && _x < this->width && _y < this->height)
-          {
-            auto c = this->get_cell(_x, _y);
-
-            c->bomb_count++;
-          }
-        }
+        neighbor->bomb_count++;
       }
 
       return true;
@@ -190,7 +207,35 @@ namespace std
   }
 
   /// @brief Runs the reveal algorithm.
-  void Grid::reveal() {}
+  void Grid::reveal()
+  {
+    vector<GridCell *> frontier;
+
+    frontier.push_back(this->pointer->get_cell());
+
+    while (!frontier.empty())
+    {
+      auto cell = frontier.back();
+
+      frontier.pop_back();
+
+      auto was_revealed = cell->reveal();
+
+      if (was_revealed)
+      {
+        this->drawer->reveal(cell->x, cell->y, cell->bomb_count, cell->has_bomb);
+
+        if (cell->bomb_count == 0)
+        {
+          for (auto neighbor : this->get_neighbors(cell->x, cell->y))
+          {
+            if (!neighbor->is_revealed)
+              frontier.push_back(neighbor);
+          }
+        }
+      }
+    }
+  }
 
   /// @brief Flags the cell selected by the pointer.
   void Grid::flag()

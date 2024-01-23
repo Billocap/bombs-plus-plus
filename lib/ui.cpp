@@ -116,11 +116,11 @@ void GridDrawer::flag(int x, int y)
   this->cells[i]->flag();
 }
 
-void GridDrawer::reveal(int x, int y)
+void GridDrawer::reveal(int x, int y, int count, bool has_bomb)
 {
   int i = y * this->width + x;
 
-  this->cells[i]->reveal();
+  this->cells[i]->reveal(count, has_bomb);
 }
 
 // #endregion GridDrawer
@@ -136,16 +136,38 @@ GridCellDrawer::GridCellDrawer(int x, int y)
 int GridCellDrawer::draw(int y, int x)
 {
   if (this->is_focused)
-  {
-    init_pair(20000, COLOR_BLACK, COLOR_YELLOW);
+    attron(A_DIM);
 
-    attron(COLOR_PAIR(20000));
+  if (this->is_revealed)
+  {
+    auto bom_count = this->bomb_count;
+
+    int fg_color[] = {
+        COLOR_BLACK,  // 0
+        COLOR_GREEN,  // 1
+        COLOR_BLUE,   // 2
+        COLOR_YELLOW, // 3
+        COLOR_YELLOW, // 4
+        COLOR_RED,    // 5
+        COLOR_RED,    // 6
+        COLOR_RED,    // 7
+        COLOR_RED,    // 8
+    };
+
+    std::string top_nums[] = {" ", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸"};
+    std::string bot_nums[] = {" ", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈"};
+
+    std::string label = top_nums[bomb_count] + bot_nums[bomb_count];
+
+    mvprintw(y + this->y, x + this->x * 2, this->has_bomb ? "()" : label.c_str());
+  }
+  else
+  {
+    mvprintw(y + this->y, x + this->x * 2, this->has_flag ? " ╕" : "░░");
   }
 
-  mvprintw(y + this->y, x + this->x * 2, this->has_flag ? " ╕" : "░░");
-
   if (this->is_focused)
-    attroff(COLOR_PAIR(20000));
+    attroff(A_DIM);
 
   return 0;
 }
@@ -162,14 +184,14 @@ void GridCellDrawer::blur()
 
 void GridCellDrawer::flag()
 {
-  if (!this->is_revealed)
-    this->has_flag = !this->has_flag;
+  this->has_flag = !this->has_flag;
 }
 
-void GridCellDrawer::reveal()
+void GridCellDrawer::reveal(int count, bool has_bomb)
 {
-  if (!this->has_flag)
-    this->is_revealed = true;
+  this->is_revealed = true;
+  this->bomb_count = count;
+  this->has_bomb = has_bomb;
 }
 
 // #region GridCellDrawer
