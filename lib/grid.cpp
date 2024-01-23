@@ -227,12 +227,33 @@ namespace std
       {
         this->drawer->reveal(cell->x, cell->y, cell->bomb_count, cell->has_bomb);
 
+        auto neighbors = this->get_neighbors(cell->x, cell->y);
+
         if (cell->bomb_count == 0)
         {
-          for (auto neighbor : this->get_neighbors(cell->x, cell->y))
+          for (auto neighbor : neighbors)
           {
             if (!neighbor->is_revealed)
               frontier.push_back(neighbor);
+          }
+        }
+        else
+        {
+          int flagged = 0;
+
+          for (auto neighbor : neighbors)
+          {
+            if (neighbor->has_flag)
+              flagged++;
+          }
+
+          if (flagged == cell->bomb_count)
+          {
+            for (auto neighbor : neighbors)
+            {
+              if (!neighbor->is_revealed)
+                frontier.push_back(neighbor);
+            }
           }
         }
       }

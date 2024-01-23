@@ -11,6 +11,13 @@ namespace std
     return this->running;
   }
 
+  /// @brief Used to check if the game is running but paused.
+  /// @return The pause state of the game.
+  bool Game::is_paused()
+  {
+    return this->paused;
+  }
+
   /// @brief Starts the execution of the game.
   void Game::start()
   {
@@ -21,6 +28,18 @@ namespace std
   void Game::stop()
   {
     this->running = false;
+  }
+
+  /// @brief Pauses the game.
+  void Game::pause()
+  {
+    this->paused = true;
+  }
+
+  /// @brief Resumes the game.
+  void Game::resume()
+  {
+    this->paused = false;
   }
 
   /// @brief Start a new game.
@@ -57,6 +76,34 @@ namespace std
   Grid *Game::get_grid()
   {
     return this->grid;
+  }
+
+  /// @brief Handles keyboard input.
+  /// @param key ASCII code for the key pressed.
+  void Game::handle_input(int key)
+  {
+    if (this->paused)
+    {
+      switch (key)
+      {
+      case IO_KEY_MENU:
+        this->resume();
+        break;
+      }
+    }
+    else
+    {
+      switch (key)
+      {
+      case IO_KEY_MENU:
+        this->pause();
+        break;
+
+      default:
+        this->grid->handle_input(key);
+        break;
+      }
+    }
   }
 
   // #endregion Game

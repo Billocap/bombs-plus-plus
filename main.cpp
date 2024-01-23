@@ -92,7 +92,7 @@ int main()
       break;
 
     case 2:
-      main_game.get_grid()->handle_input(c);
+      main_game.handle_input(c);
       break;
     }
 

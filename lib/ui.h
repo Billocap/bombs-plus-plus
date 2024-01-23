@@ -18,7 +18,12 @@ public:
   /// @param x X position to draw the option at.
   /// @return The updated Y position.
   virtual int draw(int y, int x) = 0;
+};
 
+/// @brief Interface for a drawer class that can be resized.
+class IResizableDrawer : public IDrawer
+{
+public:
   /// @brief Defines the max `width` and `height`.
   /// @param height Max height.
   /// @param width Max width.
@@ -36,7 +41,7 @@ protected:
 // #region Banner
 
 /// @brief Text banner are used to improve the UI.
-class TextBanner : public IDrawer
+class TextBanner : public IResizableDrawer
 {
 public:
   TextBanner(std::string file);
@@ -59,7 +64,6 @@ public:
   GridCellDrawer(int x, int y);
 
   int draw(int y, int x);
-  void resize_clip_box(int height, int width){};
   void focus();
   void blur();
   void flag();
@@ -91,7 +95,6 @@ public:
   GridDrawer(int width, int height);
 
   int draw(int y, int x);
-  void resize_clip_box(int height, int width){};
   void focus(int x, int y);
   void blur(int x, int y);
   void flag(int x, int y);
@@ -117,7 +120,6 @@ public:
   void focus();
   void blur();
   int draw(int y, int x);
-  void resize_clip_box(int height, int width){};
 
 private:
   /// @brief Text label to be printed.
@@ -126,7 +128,7 @@ private:
   bool is_focused = false;
 };
 
-class MenuDrawer : public IDrawer
+class MenuDrawer : public IResizableDrawer
 {
 public:
   void add_option(std::string label);

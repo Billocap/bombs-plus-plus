@@ -92,6 +92,8 @@ int GridDrawer::draw(int y, int x)
     cell->draw(y, x - this->width);
   }
 
+  mvprintw(x, y - 1, "Bombs left: ");
+
   attroff(A_ALTCHARSET);
 
   return y + 1;
@@ -153,10 +155,10 @@ int GridCellDrawer::draw(int y, int x)
   {
     auto bom_count = this->bomb_count;
 
-    std::string top_nums[] = {" ", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "("};
-    std::string bot_nums[] = {" ", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", ")"};
+    std::string lft_side[] = {" ", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "("};
+    std::string rgt_side[] = {" ", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", ")"};
 
-    std::string label = top_nums[bomb_count] + bot_nums[bomb_count];
+    std::string label = lft_side[bomb_count] + rgt_side[bomb_count];
 
     attron(COLOR_PAIR(100 + bom_count));
 
@@ -166,7 +168,13 @@ int GridCellDrawer::draw(int y, int x)
   }
   else
   {
+    auto bom_count = this->has_flag ? 1 : 0;
+
+    attron(COLOR_PAIR(100));
+
     mvprintw(y + this->y, x + this->x * 2, this->has_flag ? " ╕" : "░░");
+
+    attron(COLOR_PAIR(100));
   }
 
   if (this->is_focused)
