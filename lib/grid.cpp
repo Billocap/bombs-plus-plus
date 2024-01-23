@@ -175,10 +175,12 @@ namespace std
     else
     {
       c->has_bomb = true;
+      c->bomb_count = 9;
 
       for (auto neighbor : this->get_neighbors(x, y))
       {
-        neighbor->bomb_count++;
+        if (!neighbor->has_bomb)
+          neighbor->bomb_count++;
       }
 
       return true;

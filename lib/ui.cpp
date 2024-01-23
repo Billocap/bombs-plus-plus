@@ -76,6 +76,17 @@ int GridDrawer::draw(int y, int x)
 {
   attron(A_ALTCHARSET);
 
+  init_pair(100, COLOR_WHITE, COLOR_BLACK);  // 0
+  init_pair(101, COLOR_GREEN, COLOR_BLACK);  // 1
+  init_pair(102, COLOR_BLUE, COLOR_BLACK);   // 2
+  init_pair(103, COLOR_YELLOW, COLOR_BLACK); // 3
+  init_pair(104, COLOR_YELLOW, COLOR_BLACK); // 4
+  init_pair(105, COLOR_RED, COLOR_BLACK);    // 5
+  init_pair(106, COLOR_RED, COLOR_BLACK);    // 6
+  init_pair(107, COLOR_RED, COLOR_BLACK);    // 7
+  init_pair(108, COLOR_RED, COLOR_BLACK);    // 8
+  init_pair(109, COLOR_RED, COLOR_BLACK);    // Has bomb
+
   for (auto cell : this->cells)
   {
     cell->draw(y, x - this->width);
@@ -142,24 +153,16 @@ int GridCellDrawer::draw(int y, int x)
   {
     auto bom_count = this->bomb_count;
 
-    int fg_color[] = {
-        COLOR_BLACK,  // 0
-        COLOR_GREEN,  // 1
-        COLOR_BLUE,   // 2
-        COLOR_YELLOW, // 3
-        COLOR_YELLOW, // 4
-        COLOR_RED,    // 5
-        COLOR_RED,    // 6
-        COLOR_RED,    // 7
-        COLOR_RED,    // 8
-    };
-
-    std::string top_nums[] = {" ", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸"};
-    std::string bot_nums[] = {" ", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈"};
+    std::string top_nums[] = {" ", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "("};
+    std::string bot_nums[] = {" ", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", ")"};
 
     std::string label = top_nums[bomb_count] + bot_nums[bomb_count];
 
-    mvprintw(y + this->y, x + this->x * 2, this->has_bomb ? "()" : label.c_str());
+    attron(COLOR_PAIR(100 + bom_count));
+
+    mvprintw(y + this->y, x + this->x * 2, label.c_str());
+
+    attroff(COLOR_PAIR(100 + bom_count));
   }
   else
   {
