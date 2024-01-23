@@ -109,6 +109,20 @@ void GridDrawer::blur(int x, int y)
   this->focused = NULL;
 }
 
+void GridDrawer::flag(int x, int y)
+{
+  int i = y * this->width + x;
+
+  this->cells[i]->flag();
+}
+
+void GridDrawer::reveal(int x, int y)
+{
+  int i = y * this->width + x;
+
+  this->cells[i]->reveal();
+}
+
 // #endregion GridDrawer
 
 // #region GridCellDrawer
@@ -128,7 +142,7 @@ int GridCellDrawer::draw(int y, int x)
     attron(COLOR_PAIR(20000));
   }
 
-  mvprintw(y + this->y, x + this->x * 2, "░░");
+  mvprintw(y + this->y, x + this->x * 2, this->has_flag ? " ╕" : "░░");
 
   if (this->is_focused)
     attroff(COLOR_PAIR(20000));
@@ -144,6 +158,18 @@ void GridCellDrawer::focus()
 void GridCellDrawer::blur()
 {
   this->is_focused = false;
+}
+
+void GridCellDrawer::flag()
+{
+  if (!this->is_revealed)
+    this->has_flag = !this->has_flag;
+}
+
+void GridCellDrawer::reveal()
+{
+  if (!this->has_flag)
+    this->is_revealed = true;
 }
 
 // #region GridCellDrawer
@@ -204,21 +230,21 @@ void MenuDrawer::add_option(std::string label)
 /// @param id Id of the option to focus on.
 void MenuDrawer::focus(int id)
 {
-  if (this->focused >= 0)
-  {
-    this->blur(this->focused);
-  }
+  if (this->focused != NULL)
+    this->focused->blur();
 
-  this->focused = id;
   this->options[id]->focus();
+  this->focused = this->options[id];
 }
 
 /// @brief Makes the option out of focus.
 /// @param id Id of the option to blur.
 void MenuDrawer::blur(int id)
 {
-  this->focused = -1;
-  this->options[id]->blur();
+  if (this->focused != NULL)
+    this->focused->blur();
+
+  this->focused = NULL;
 }
 
 void MenuDrawer::resize_clip_box(int height, int width)

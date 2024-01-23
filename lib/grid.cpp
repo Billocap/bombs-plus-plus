@@ -13,6 +13,34 @@ namespace std
     this->y = y;
   }
 
+  /// @brief Places a on this cell.
+  /// @return Boolean that tells if the state changed.
+  bool GridCell::flag()
+  {
+    if (!this->is_revealed)
+    {
+      this->has_flag = !this->has_flag;
+
+      return true;
+    }
+
+    return false;
+  }
+
+  /// @brief Reveal this cell.
+  /// @return Boolean that tells if the state changed.
+  bool GridCell::reveal()
+  {
+    if (!this->has_flag)
+    {
+      this->is_revealed = true;
+
+      return true;
+    }
+
+    return false;
+  }
+
   // #endregion GridCell
 
   // #region GridPointer
@@ -161,6 +189,20 @@ namespace std
     }
   }
 
+  /// @brief Runs the reveal algorithm.
+  void Grid::reveal() {}
+
+  /// @brief Flags the cell selected by the pointer.
+  void Grid::flag()
+  {
+    auto was_flagged = this->pointer->get_cell()->flag();
+
+    if (was_flagged)
+    {
+      this->drawer->flag(this->pointer->get_x(), this->pointer->get_y());
+    }
+  }
+
   /// @brief Handles keyboard input for a game grid.
   /// @param key ASCII code for the key pressed.
   void Grid::handle_input(int key)
@@ -184,11 +226,11 @@ namespace std
       break;
 
     case IO_KEY_CONFIRM:
-      this->pointer->get_cell();
+      this->reveal();
       break;
 
     case IO_KEY_ACCENT:
-      this->pointer->get_cell();
+      this->flag();
       break;
     }
 

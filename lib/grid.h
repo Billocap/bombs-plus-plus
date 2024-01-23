@@ -22,10 +22,17 @@ namespace std
     int y;
     /// @brief Boolean that defines if the cell has a bomb.
     bool has_bomb = false;
+    /// @brief Boolean that defines if the cell has a flag.
+    bool has_flag = false;
+    /// @brief Boolean that defines if the cell was revealed.
+    bool is_revealed = false;
     /// @brief How many neighbors of this cell has a bomb.
     int bomb_count = 0;
 
     GridCell(int x, int y);
+
+    bool flag();
+    bool reveal();
   };
 
   /// @brief The grid pointer marks the current selected cell.
@@ -69,6 +76,8 @@ namespace std
     bool place_bomb_at(int x, int y);
     void place_bombs(int amount);
     void handle_input(int key);
+    void reveal();
+    void flag();
 
   private:
     /// @brief Collection of cells this grid contains.

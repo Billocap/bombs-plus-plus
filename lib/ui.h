@@ -62,11 +62,21 @@ public:
   void resize_clip_box(int height, int width){};
   void focus();
   void blur();
+  void flag();
+  void reveal();
 
 private:
   bool is_focused = false;
   int x;
   int y;
+  /// @brief Boolean that defines if the cell has a bomb.
+  bool has_bomb = false;
+  /// @brief Boolean that defines if the cell has a flag.
+  bool has_flag = false;
+  /// @brief Boolean that defines if the cell was revealed.
+  bool is_revealed = false;
+  /// @brief How many neighbors of this cell has a bomb.
+  int bomb_count = 0;
 };
 
 /// @brief Class for rendering a grid.
@@ -84,6 +94,8 @@ public:
   void resize_clip_box(int height, int width){};
   void focus(int x, int y);
   void blur(int x, int y);
+  void flag(int x, int y);
+  void reveal(int x, int y);
 
 private:
   std::vector<GridCellDrawer *> cells;
@@ -111,7 +123,7 @@ private:
   /// @brief Text label to be printed.
   std::string label;
   /// @brief Boolean that represents if this option is in focus.
-  bool is_focused;
+  bool is_focused = false;
 };
 
 class MenuDrawer : public IDrawer
@@ -128,7 +140,7 @@ private:
   /// @brief The main banner for this menu.
   TextBanner *banner;
   /// @brief Current option in focus.
-  int focused;
+  MenuOptionDrawer *focused;
   /// @brief List of options this menu has.
   std::vector<MenuOptionDrawer *> options;
 };
