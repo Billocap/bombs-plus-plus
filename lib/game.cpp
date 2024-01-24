@@ -2,7 +2,51 @@
 
 namespace std
 {
+  // #region Events
+
+  GameRenderHandler::GameRenderHandler(Game *game)
+  {
+    this->game = game;
+  }
+
+  void GameRenderHandler::notify(RenderEvent *event)
+  {
+    if (this->game->screen == "game")
+    {
+      this->game->get_grid()->drawer->draw(event->y, event->x);
+    }
+    else
+    {
+      this->game->get_menu()->on_render->notify(event);
+    }
+  }
+
+  GameKeyboardHandler::GameKeyboardHandler(Game *game)
+  {
+    this->game = game;
+  }
+
+  void GameKeyboardHandler::notify(KeyboardEvent *event)
+  {
+    if (this->game->screen == "game")
+    {
+      this->game->get_grid()->on_key_press->notify(event);
+    }
+    else
+    {
+      this->game->get_menu()->on_key_press->notify(event);
+    }
+  }
+
+  // #endregion Events
+
   // #region Game
+
+  Game::Game()
+  {
+    this->on_key_press = new GameKeyboardHandler(this);
+    this->on_render = new GameRenderHandler(this);
+  }
 
   /// @brief Used to check if the game is running.
   /// @return The state of the game.
@@ -69,6 +113,8 @@ namespace std
 
       break;
     }
+
+    this->go_to("game");
   }
 
   /// @brief Returns the main grid.
@@ -78,32 +124,29 @@ namespace std
     return this->grid;
   }
 
-  /// @brief Handles keyboard input.
-  /// @param key ASCII code for the key pressed.
-  void Game::handle_input(int key)
+  /// @brief Adds a new menu to the list of available menus.
+  /// @param name Unique id for this menu.
+  /// @param menu Pointer to the menu object.
+  void Game::add_menu(string name, Menu *menu)
   {
-    if (this->paused)
-    {
-      switch (key)
-      {
-      case IO_KEY_MENU:
-        this->resume();
-        break;
-      }
-    }
-    else
-    {
-      switch (key)
-      {
-      case IO_KEY_MENU:
-        this->pause();
-        break;
+    this->menus[name] = menu;
 
-      default:
-        this->grid->handle_input(key);
-        break;
-      }
+    if (this->screen == "")
+    {
+      this->screen = name;
     }
+  }
+
+  /// @brief Changes the current game screen.
+  /// @param name Name of the screen to load.
+  void Game::go_to(string name)
+  {
+    this->screen = name;
+  }
+
+  Menu *Game::get_menu()
+  {
+    return this->menus[this->screen];
   }
 
   // #endregion Game

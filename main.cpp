@@ -10,6 +10,7 @@
 #include "lib/io.h"
 #include "lib/menuopts.h"
 #include "lib/menu.h"
+#include "lib/events.h"
 
 using namespace std;
 
@@ -29,14 +30,12 @@ int main()
 
   curs_set(0);
 
-  int curr_menu = 0;
-
   TextBanner title_banner("assets/banner");
 
   Menu menu;
 
   // menu.add_option("Continue", new EmptyOption());
-  menu.add_option("New game", new GoToOption(&curr_menu, 1));
+  menu.add_option("New game", new GoToOption(&main_game, "diff"));
   menu.add_option("Exit", new ExitOption(&main_game));
 
   menu.drawer->set_banner(&title_banner);
@@ -44,13 +43,24 @@ int main()
 
   Menu diff_menu;
 
-  diff_menu.add_option("Easy", new NewGameOption(&main_game, D_EASY, &curr_menu, 2));
-  diff_menu.add_option("Medium", new NewGameOption(&main_game, D_MEDIUM, &curr_menu, 2));
-  diff_menu.add_option("Hard", new NewGameOption(&main_game, D_HARD, &curr_menu, 2));
-  diff_menu.add_option("Back", new GoToOption(&curr_menu, 0));
+  diff_menu.add_option("Easy", new NewGameOption(&main_game, D_EASY));
+  diff_menu.add_option("Medium", new NewGameOption(&main_game, D_MEDIUM));
+  diff_menu.add_option("Hard", new NewGameOption(&main_game, D_HARD));
+  diff_menu.add_option("Back", new GoToOption(&main_game, "main"));
 
   diff_menu.drawer->set_banner(&title_banner);
   diff_menu.drawer->focus(0);
+
+  main_game.add_menu("main", &menu);
+  main_game.add_menu("diff", &diff_menu);
+
+  KeyboardDispatcher keyboard;
+
+  keyboard.subscribe(main_game.on_key_press);
+
+  RenderDispatcher renderer;
+
+  renderer.subscribe(main_game.on_render);
 
   while (main_game.is_running())
   {
@@ -58,43 +68,15 @@ int main()
 
     getmaxyx(main_window, h, w);
 
-    switch (curr_menu)
-    {
-    case 0:
-      menu.drawer->resize_clip_box(h, w);
-      menu.drawer->draw(h / 4, w / 2);
-      break;
-
-    case 1:
-      diff_menu.drawer->resize_clip_box(h, w);
-      diff_menu.drawer->draw(h / 4, w / 2);
-      break;
-
-    case 2:
-      main_game.get_grid()->drawer->draw(h / 4, w / 2);
-      break;
-    }
+    renderer.notify(new RenderEvent(w, h, w / 2, h / 4));
 
     refresh();
 
     attron(A_INVIS);
 
-    unsigned int c = getch();
+    int c = getch();
 
-    switch (curr_menu)
-    {
-    case 0:
-      menu.handle_input(c);
-      break;
-
-    case 1:
-      diff_menu.handle_input(c);
-      break;
-
-    case 2:
-      main_game.handle_input(c);
-      break;
-    }
+    keyboard.notify(new KeyboardEvent(c));
 
     attroff(A_INVIS);
   }

@@ -4,21 +4,57 @@
 #include <vector>
 #include <string>
 
-#include "io.h"
+#include "events.h"
 #include "ui.h"
 
 namespace std
 {
+  class Menu;
+
+  // #region Interfaces
+
+  /// @brief Interface for a menu option object.
   class IMenuOption
   {
   public:
+    /// @brief Defines the action this option performs.
     virtual void execute() = 0;
   };
 
-  class Menu : public IInputHandler
+  // #endregion Interfaces
+
+  // #region Events
+
+  class MenuRenderHandler : public IEventHandler<RenderEvent>
+  {
+  public:
+    MenuRenderHandler(Menu *menu);
+
+    void notify(RenderEvent *event);
+
+  private:
+    Menu *menu;
+  };
+
+  class MenuKeyboardHandler : public IEventHandler<KeyboardEvent>
+  {
+  public:
+    MenuKeyboardHandler(Menu *menu);
+
+    void notify(KeyboardEvent *event);
+
+  private:
+    Menu *menu;
+  };
+
+  // #endregion Events
+
+  class Menu
   {
   public:
     MenuDrawer *drawer;
+    MenuKeyboardHandler *on_key_press;
+    MenuRenderHandler *on_render;
 
     Menu();
 
@@ -27,7 +63,6 @@ namespace std
     void pointer_down();
     void execute();
     int get_pointer();
-    void handle_input(int key);
 
   private:
     int pointer = 0;

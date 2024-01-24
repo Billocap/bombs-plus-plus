@@ -50,30 +50,39 @@ namespace std
   GridPointer::GridPointer(Grid *parent)
   {
     this->parent = parent;
+    this->movement = new MovementDispatcher();
   }
 
   /// @brief Moves the pointer up one cell.
   void GridPointer::go_up()
   {
     this->y = (this->parent->height + this->y - 1) % this->parent->height;
+
+    this->movement->notify(new MovementEvent(this->x, this->y));
   }
 
   /// @brief Moves the pointer down one cell.
   void GridPointer::go_down()
   {
     this->y = (this->y + 1) % this->parent->height;
+
+    this->movement->notify(new MovementEvent(this->x, this->y));
   }
 
   /// @brief Moves the pointer left one cell.
   void GridPointer::go_left()
   {
     this->x = (this->parent->width + this->x - 1) % this->parent->width;
+
+    this->movement->notify(new MovementEvent(this->x, this->y));
   }
 
   /// @brief Moves the pointer right one cell.
   void GridPointer::go_right()
   {
     this->x = (this->x + 1) % this->parent->width;
+
+    this->movement->notify(new MovementEvent(this->x, this->y));
   }
 
   /// @brief Returns the current selected cell.
@@ -95,6 +104,55 @@ namespace std
 
   // #endregion GridPointer
 
+  // #region GridKeyboardHandler
+
+  GridKeyboardHandler::GridKeyboardHandler(Grid *grid)
+  {
+    this->grid = grid;
+  }
+
+  void GridKeyboardHandler::notify(KeyboardEvent *event)
+  {
+    switch (event->key)
+    {
+    case IO_KEY_UP:
+      this->grid->pointer->go_up();
+      break;
+
+    case IO_KEY_DOWN:
+      this->grid->pointer->go_down();
+      break;
+
+    case IO_KEY_LEFT:
+      this->grid->pointer->go_left();
+      break;
+
+    case IO_KEY_RIGHT:
+      this->grid->pointer->go_right();
+      break;
+
+    case IO_KEY_CONFIRM:
+      this->grid->reveal();
+      break;
+
+    case IO_KEY_ACCENT:
+      this->grid->flag();
+      break;
+    }
+  }
+
+  PointerMovementHandler::PointerMovementHandler(GridDrawer *drawer)
+  {
+    this->drawer = drawer;
+  }
+
+  void PointerMovementHandler::notify(MovementEvent *event)
+  {
+    // this->drawer->focus(event->x, event->y);
+  }
+
+  // #endregion GridKeyboardHandler
+
   // #region Grid
 
   /// @brief Creates a new grid with the specified size.
@@ -107,6 +165,9 @@ namespace std
     this->pointer = new GridPointer(this);
     this->drawer = new GridDrawer(width, height);
     this->cells = vector<GridCell *>();
+    this->on_key_press = new GridKeyboardHandler(this);
+
+    this->pointer->movement->subscribe(new PointerMovementHandler(this->drawer));
 
     srand((unsigned)time(NULL));
 
@@ -206,6 +267,18 @@ namespace std
 
       n++;
     }
+
+    // for (auto cell : this->cells)
+    // {
+    //   if (cell->has_bomb)
+    //   {
+    //     this->bombs.push_back(cell);
+    //   }
+    //   else
+    //   {
+    //     this->safe_cells.push_back(cell);
+    //   }
+    // }
   }
 
   /// @brief Runs the reveal algorithm.
@@ -226,6 +299,13 @@ namespace std
       if (was_revealed)
       {
         this->drawer->reveal(cell->x, cell->y, cell->bomb_count, cell->has_bomb);
+
+        if (cell->has_bomb)
+        {
+          this->exploded = true;
+
+          break;
+        }
 
         auto neighbors = this->get_neighbors(cell->x, cell->y);
 
@@ -258,6 +338,28 @@ namespace std
         }
       }
     }
+
+    // bool all_flagged = true;
+
+    // for (auto bomb : this->bombs)
+    // {
+    //   if (!bomb->has_flag)
+    //     all_flagged = false;
+    // }
+
+    // if (all_flagged)
+    //   this->completed = true;
+
+    // bool all_revealed = true;
+
+    // for (auto cell : this->safe_cells)
+    // {
+    //   if (!cell->is_revealed)
+    //     all_revealed = false;
+    // }
+
+    // if (all_revealed)
+    //   this->completed = true;
   }
 
   /// @brief Flags the cell selected by the pointer.
@@ -269,40 +371,6 @@ namespace std
     {
       this->drawer->flag(this->pointer->get_x(), this->pointer->get_y());
     }
-  }
-
-  /// @brief Handles keyboard input for a game grid.
-  /// @param key ASCII code for the key pressed.
-  void Grid::handle_input(int key)
-  {
-    switch (key)
-    {
-    case IO_KEY_UP:
-      this->pointer->go_up();
-      break;
-
-    case IO_KEY_DOWN:
-      this->pointer->go_down();
-      break;
-
-    case IO_KEY_LEFT:
-      this->pointer->go_left();
-      break;
-
-    case IO_KEY_RIGHT:
-      this->pointer->go_right();
-      break;
-
-    case IO_KEY_CONFIRM:
-      this->reveal();
-      break;
-
-    case IO_KEY_ACCENT:
-      this->flag();
-      break;
-    }
-
-    this->drawer->focus(this->pointer->get_x(), this->pointer->get_y());
   }
 
   // #endregion Grid

@@ -5,12 +5,38 @@
 #include <cstdlib>
 #include <time.h>
 
-#include "io.h"
 #include "ui.h"
+#include "events.h"
 
 namespace std
 {
   class Grid;
+
+  // #region Events
+
+  class GridKeyboardHandler : public IEventHandler<KeyboardEvent>
+  {
+  public:
+    GridKeyboardHandler(Grid *grid);
+
+    void notify(KeyboardEvent *event);
+
+  private:
+    Grid *grid;
+  };
+
+  class PointerMovementHandler : public IEventHandler<MovementEvent>
+  {
+  public:
+    PointerMovementHandler(GridDrawer *drawer);
+
+    void notify(MovementEvent *event);
+
+  private:
+    GridDrawer *drawer;
+  };
+
+  // #endregion Events
 
   /// @brief Represents a single tile on the grid.
   class GridCell
@@ -39,6 +65,8 @@ namespace std
   class GridPointer
   {
   public:
+    MovementDispatcher *movement;
+
     GridPointer(Grid *parent);
 
     void go_left();
@@ -60,15 +88,22 @@ namespace std
   };
 
   /// @brief A grid is a collection of tiles.
-  class Grid : public IInputHandler
+  class Grid
   {
   public:
     /// @brief Renderer for this grid.
     GridDrawer *drawer;
+    GridKeyboardHandler *on_key_press;
     /// @brief Width of the grid in cells.
     int width;
     /// @brief Height of the grid in cells.
     int height;
+    /// @brief Tells if a bomb was revealed.
+    bool exploded = false;
+    /// @brief Tells if all the cells were revealed.
+    bool completed = false;
+    /// @brief Grid pointer keeps track of the current selected cell.
+    GridPointer *pointer;
 
     Grid(int width, int height);
 
@@ -76,15 +111,17 @@ namespace std
     bool place_bomb_at(int x, int y);
     vector<GridCell *> get_neighbors(int x, int y);
     void place_bombs(int amount);
-    void handle_input(int key);
     void reveal();
     void flag();
 
   private:
     /// @brief Collection of cells this grid contains.
     vector<GridCell *> cells;
-    /// @brief Grid pointer keeps track of the current selected cell.
-    GridPointer *pointer;
+
+    GridCell *focused;
+
+    // vector<GridCell *> bombs;
+    // vector<GridCell *> safe_cells;
   };
 }
 

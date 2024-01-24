@@ -20,32 +20,29 @@ namespace std
 
   // #region GoToOption
 
-  GoToOption::GoToOption(int *state, int id) : IMenuOption()
+  GoToOption::GoToOption(Game *game, string name) : IMenuOption()
   {
-    this->state = state;
-    this->id = id;
+    this->game = game;
+    this->name = name;
   }
 
   void GoToOption::execute()
   {
-    *(this->state) = this->id;
+    this->game->go_to(this->name);
   }
 
   // #endregion GoToOption
 
   // #region NewGameOption
 
-  NewGameOption::NewGameOption(Game *game, Difficulty diff, int *state, int id) : IMenuOption()
+  NewGameOption::NewGameOption(Game *game, Difficulty diff) : IMenuOption()
   {
     this->game = game;
     this->diff = diff;
-    this->state = state;
-    this->id = id;
   }
 
   void NewGameOption::execute()
   {
-    *(this->state) = this->id;
     this->game->new_game(this->diff);
   }
 

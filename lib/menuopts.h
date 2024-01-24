@@ -1,6 +1,8 @@
 #ifndef MENU_OPTIONS_H
 #define MENU_OPTIONS_H
 
+#include <string>
+
 #include "menu.h"
 #include "game.h"
 
@@ -25,30 +27,28 @@ namespace std
     Game *game;
   };
 
-  /// @brief Represents a menu option that goes to another menu.
+  /// @brief Represents a menu option that changes the current screen.
   class GoToOption : public IMenuOption
   {
   public:
-    GoToOption(int *state, int id);
+    GoToOption(Game *game, string name);
 
     void execute();
 
   private:
-    int *state;
-    int id;
+    Game *game;
+    string name;
   };
 
   /// @brief Represents a menu options that starts a new game.
   class NewGameOption : public IMenuOption
   {
   public:
-    NewGameOption(Game *game, Difficulty diff, int *state, int id);
+    NewGameOption(Game *game, Difficulty diff);
 
     void execute();
 
   private:
-    int *state;
-    int id;
     Game *game;
     Difficulty diff;
   };

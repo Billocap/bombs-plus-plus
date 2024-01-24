@@ -153,23 +153,21 @@ int GridCellDrawer::draw(int y, int x)
 
   if (this->is_revealed)
   {
-    auto bom_count = this->bomb_count;
+    auto bomb_count = this->bomb_count;
 
     std::string lft_side[] = {" ", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "("};
     std::string rgt_side[] = {" ", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", ")"};
 
     std::string label = lft_side[bomb_count] + rgt_side[bomb_count];
 
-    attron(COLOR_PAIR(100 + bom_count));
+    attron(COLOR_PAIR(100 + bomb_count));
 
     mvprintw(y + this->y, x + this->x * 2, label.c_str());
 
-    attroff(COLOR_PAIR(100 + bom_count));
+    attroff(COLOR_PAIR(100 + bomb_count));
   }
   else
   {
-    auto bom_count = this->has_flag ? 1 : 0;
-
     attron(COLOR_PAIR(100));
 
     mvprintw(y + this->y, x + this->x * 2, this->has_flag ? " ╕" : "░░");
