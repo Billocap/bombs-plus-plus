@@ -141,6 +141,16 @@ namespace std
     }
   }
 
+  GridRenderHandler::GridRenderHandler(Grid *grid)
+  {
+    this->grid = grid;
+  }
+
+  void GridRenderHandler::notify(RenderEvent *event)
+  {
+    this->grid->drawer->draw(event->y, event->x);
+  }
+
   PointerMovementHandler::PointerMovementHandler(GridDrawer *drawer)
   {
     this->drawer = drawer;
@@ -148,7 +158,7 @@ namespace std
 
   void PointerMovementHandler::notify(MovementEvent *event)
   {
-    // this->drawer->focus(event->x, event->y);
+    this->drawer->focus(event->x, event->y);
   }
 
   // #endregion GridKeyboardHandler
@@ -166,6 +176,7 @@ namespace std
     this->drawer = new GridDrawer(width, height);
     this->cells = vector<GridCell *>();
     this->on_key_press = new GridKeyboardHandler(this);
+    this->on_render = new GridRenderHandler(this);
 
     this->pointer->movement->subscribe(new PointerMovementHandler(this->drawer));
 

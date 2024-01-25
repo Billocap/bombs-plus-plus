@@ -25,6 +25,17 @@ namespace std
     Grid *grid;
   };
 
+  class GridRenderHandler : public IEventHandler<RenderEvent>
+  {
+  public:
+    GridRenderHandler(Grid *grid);
+
+    void notify(RenderEvent *event);
+
+  private:
+    Grid *grid;
+  };
+
   class PointerMovementHandler : public IEventHandler<MovementEvent>
   {
   public:
@@ -94,6 +105,7 @@ namespace std
     /// @brief Renderer for this grid.
     GridDrawer *drawer;
     GridKeyboardHandler *on_key_press;
+    GridRenderHandler *on_render;
     /// @brief Width of the grid in cells.
     int width;
     /// @brief Height of the grid in cells.

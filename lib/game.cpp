@@ -13,7 +13,7 @@ namespace std
   {
     if (this->game->screen == "game")
     {
-      this->game->get_grid()->drawer->draw(event->y, event->x);
+      this->game->get_grid()->on_render->notify(event);
     }
     else
     {

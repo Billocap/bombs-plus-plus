@@ -56,6 +56,7 @@ GridDrawer::GridDrawer(int width, int height)
 {
   this->width = width;
   this->height = height;
+  this->focused = NULL;
 
   for (auto y = 0; y < height; y++)
   {
