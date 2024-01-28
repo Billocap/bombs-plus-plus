@@ -15,9 +15,10 @@ namespace std
     {
       if (this->game->finished)
       {
-        int x = event->x - this->game->get_grid()->width;
-        int y = event->y - 1;
         string message = this->game->won ? "You Won" : "You Lost";
+
+        int x = event->x - (message.size() / 2);
+        int y = event->y - 1;
 
         render_state(message, x, y);
       }
@@ -129,6 +130,9 @@ namespace std
   void Game::new_game(Difficulty diff)
   {
     this->resume();
+
+    this->finished = false;
+    this->won = false;
 
     switch (diff)
     {
