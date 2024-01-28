@@ -44,6 +44,17 @@ namespace std
     Game *game;
   };
 
+  class GridStateHandler : public IEventHandler<GridStateEvent>
+  {
+  public:
+    GridStateHandler(Game *game);
+
+    void notify(GridStateEvent *event);
+
+  private:
+    Game *game;
+  };
+
   // #endregion Events
 
   class Game
@@ -58,6 +69,7 @@ namespace std
 
     GameKeyboardHandler *on_key_press;
     GameRenderHandler *on_render;
+    GridStateHandler *on_grid_state;
 
     Game();
 

@@ -38,6 +38,17 @@ namespace std
     }
   }
 
+  GridStateHandler::GridStateHandler(Game *game)
+  {
+    this->game = game;
+  }
+
+  void GridStateHandler::notify(GridStateEvent *event)
+  {
+    this->game->finished = true;
+    this->game->won = event->won;
+  }
+
   // #endregion Events
 
   // #region Game
@@ -46,6 +57,7 @@ namespace std
   {
     this->on_key_press = new GameKeyboardHandler(this);
     this->on_render = new GameRenderHandler(this);
+    this->on_grid_state = new GridStateHandler(this);
   }
 
   /// @brief Used to check if the game is running.
@@ -97,6 +109,8 @@ namespace std
 
       this->grid->place_bombs(10);
 
+      this->grid->state->subscribe(this->on_grid_state);
+
       break;
 
     case D_MEDIUM:
@@ -104,12 +118,16 @@ namespace std
 
       this->grid->place_bombs(20);
 
+      this->grid->state->subscribe(this->on_grid_state);
+
       break;
 
     case D_HARD:
       this->grid = new Grid(6, 6);
 
       this->grid->place_bombs(10);
+
+      this->grid->state->subscribe(this->on_grid_state);
 
       break;
     }

@@ -2,6 +2,37 @@
 
 namespace std
 {
+  // #region GridStateEvent
+
+  GridStateEvent::GridStateEvent(bool won)
+  {
+    this->won = won;
+  }
+
+  void GridStateDispatcher::subscribe(IEventHandler<GridStateEvent> *handler)
+  {
+    this->handlers.push_back(handler);
+
+    handler->id = this->handlers.size();
+  }
+
+  void GridStateDispatcher::unsubscribe(IEventHandler<GridStateEvent> *handler)
+  {
+    auto it = this->handlers.begin() + handler->id;
+
+    this->handlers.erase(it);
+  }
+
+  void GridStateDispatcher::notify(GridStateEvent *event)
+  {
+    for (auto handler : this->handlers)
+    {
+      handler->notify(event);
+    }
+  }
+
+  // #endregion GridStateEvent
+
   // #region GridCell
 
   /// @brief Creates a nes cell at the specified coordinates.
@@ -175,6 +206,10 @@ namespace std
     this->pointer = new GridPointer(this);
     this->drawer = new GridDrawer(width, height);
     this->cells = vector<GridCell *>();
+    this->focused = NULL;
+
+    this->state = new GridStateDispatcher();
+
     this->on_key_press = new GridKeyboardHandler(this);
     this->on_render = new GridRenderHandler(this);
 
@@ -279,17 +314,17 @@ namespace std
       n++;
     }
 
-    // for (auto cell : this->cells)
-    // {
-    //   if (cell->has_bomb)
-    //   {
-    //     this->bombs.push_back(cell);
-    //   }
-    //   else
-    //   {
-    //     this->safe_cells.push_back(cell);
-    //   }
-    // }
+    for (auto cell : this->cells)
+    {
+      if (cell->has_bomb)
+      {
+        this->bombs.push_back(cell);
+      }
+      else
+      {
+        this->safe_cells.push_back(cell);
+      }
+    }
   }
 
   /// @brief Runs the reveal algorithm.
@@ -313,7 +348,7 @@ namespace std
 
         if (cell->has_bomb)
         {
-          this->exploded = true;
+          this->state->notify(new GridStateEvent(false));
 
           break;
         }
@@ -350,27 +385,27 @@ namespace std
       }
     }
 
-    // bool all_flagged = true;
+    bool all_flagged = true;
 
-    // for (auto bomb : this->bombs)
-    // {
-    //   if (!bomb->has_flag)
-    //     all_flagged = false;
-    // }
+    for (auto bomb : this->bombs)
+    {
+      if (!bomb->has_flag)
+        all_flagged = false;
+    }
 
-    // if (all_flagged)
-    //   this->completed = true;
+    if (all_flagged)
+      this->state->notify(new GridStateEvent(true));
 
-    // bool all_revealed = true;
+    bool all_revealed = true;
 
-    // for (auto cell : this->safe_cells)
-    // {
-    //   if (!cell->is_revealed)
-    //     all_revealed = false;
-    // }
+    for (auto cell : this->safe_cells)
+    {
+      if (!cell->is_revealed)
+        all_revealed = false;
+    }
 
-    // if (all_revealed)
-    //   this->completed = true;
+    if (all_revealed)
+      this->state->notify(new GridStateEvent(true));
   }
 
   /// @brief Flags the cell selected by the pointer.

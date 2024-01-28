@@ -79,6 +79,11 @@ int main()
     keyboard.notify(new KeyboardEvent(c));
 
     attroff(A_INVIS);
+
+    if (main_game.finished)
+    {
+      main_game.stop();
+    }
   }
 
   attroff(A_INVIS);
@@ -86,6 +91,15 @@ int main()
   curs_set(1);
 
   endwin();
+
+  if (main_game.won)
+  {
+    cout << "You Won" << endl;
+  }
+  else
+  {
+    cout << "You Lost" << endl;
+  }
 
   return 0;
 }

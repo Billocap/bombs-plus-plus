@@ -47,6 +47,25 @@ namespace std
     GridDrawer *drawer;
   };
 
+  class GridStateEvent
+  {
+  public:
+    bool won;
+
+    GridStateEvent(bool won);
+  };
+
+  class GridStateDispatcher : public IEventDispatcher<GridStateEvent>
+  {
+  public:
+    void subscribe(IEventHandler<GridStateEvent> *handler);
+    void unsubscribe(IEventHandler<GridStateEvent> *handler);
+    void notify(GridStateEvent *event);
+
+  private:
+    vector<IEventHandler<GridStateEvent> *> handlers;
+  };
+
   // #endregion Events
 
   /// @brief Represents a single tile on the grid.
@@ -63,6 +82,8 @@ namespace std
     bool has_flag = false;
     /// @brief Boolean that defines if the cell was revealed.
     bool is_revealed = false;
+    /// @brief If the cell is in focus.
+    bool is_focused = false;
     /// @brief How many neighbors of this cell has a bomb.
     int bomb_count = 0;
 
@@ -116,6 +137,7 @@ namespace std
     bool completed = false;
     /// @brief Grid pointer keeps track of the current selected cell.
     GridPointer *pointer;
+    GridStateDispatcher *state;
 
     Grid(int width, int height);
 
@@ -132,8 +154,8 @@ namespace std
 
     GridCell *focused;
 
-    // vector<GridCell *> bombs;
-    // vector<GridCell *> safe_cells;
+    vector<GridCell *> bombs;
+    vector<GridCell *> safe_cells;
   };
 }
 
