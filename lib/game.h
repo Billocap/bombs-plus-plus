@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <ncursesw/ncurses.h>
 
 #include "events.h"
 #include "grid.h"
@@ -96,5 +97,7 @@ namespace std
     map<string, Menu *> menus;
   };
 }
+
+void render_state(std::string message, int x, int y);
 
 #endif

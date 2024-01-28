@@ -13,6 +13,15 @@ namespace std
   {
     if (this->game->screen == "game")
     {
+      if (this->game->finished)
+      {
+        int x = event->x - this->game->get_grid()->width;
+        int y = event->y - 1;
+        string message = this->game->won ? "You Won" : "You Lost";
+
+        render_state(message, x, y);
+      }
+
       this->game->get_grid()->on_render->notify(event);
     }
     else
@@ -30,7 +39,23 @@ namespace std
   {
     if (this->game->screen == "game")
     {
-      this->game->get_grid()->on_key_press->notify(event);
+      if (this->game->is_paused())
+      {
+        switch (event->key)
+        {
+        case IO_KEY_MENU:
+          this->game->stop();
+          break;
+
+        default:
+          this->game->go_to("main");
+          break;
+        }
+      }
+      else
+      {
+        this->game->get_grid()->on_key_press->notify(event);
+      }
     }
     else
     {
@@ -45,6 +70,7 @@ namespace std
 
   void GridStateHandler::notify(GridStateEvent *event)
   {
+    this->game->pause();
     this->game->finished = true;
     this->game->won = event->won;
   }
@@ -102,14 +128,14 @@ namespace std
   /// @param diff The difficulty of the new game.
   void Game::new_game(Difficulty diff)
   {
+    this->resume();
+
     switch (diff)
     {
     case D_EASY:
       this->grid = new Grid(8, 8);
 
       this->grid->place_bombs(10);
-
-      this->grid->state->subscribe(this->on_grid_state);
 
       break;
 
@@ -118,8 +144,6 @@ namespace std
 
       this->grid->place_bombs(20);
 
-      this->grid->state->subscribe(this->on_grid_state);
-
       break;
 
     case D_HARD:
@@ -127,11 +151,10 @@ namespace std
 
       this->grid->place_bombs(10);
 
-      this->grid->state->subscribe(this->on_grid_state);
-
       break;
     }
 
+    this->grid->state->subscribe(this->on_grid_state);
     this->go_to("game");
   }
 
@@ -168,4 +191,9 @@ namespace std
   }
 
   // #endregion Game
+}
+
+void render_state(std::string message, int x, int y)
+{
+  mvprintw(y, x, message.c_str());
 }

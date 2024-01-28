@@ -6,6 +6,7 @@
 #include <ncursesw/ncurses.h>
 
 #include "io.h"
+#include "events.h"
 
 // #region Interfaces
 
@@ -55,57 +56,6 @@ private:
 };
 
 // #endregion Banner
-
-// #region Grid
-
-class GridCellDrawer : public IDrawer
-{
-public:
-  GridCellDrawer(int x, int y);
-
-  int draw(int y, int x);
-  void focus();
-  void blur();
-  void flag();
-  void reveal(int count, bool has_bomb);
-
-private:
-  bool is_focused = false;
-  int x;
-  int y;
-  /// @brief Boolean that defines if the cell has a bomb.
-  bool has_bomb = false;
-  /// @brief Boolean that defines if the cell has a flag.
-  bool has_flag = false;
-  /// @brief Boolean that defines if the cell was revealed.
-  bool is_revealed = false;
-  /// @brief How many neighbors of this cell has a bomb.
-  int bomb_count = 0;
-};
-
-/// @brief Class for rendering a grid.
-class GridDrawer : public IDrawer
-{
-public:
-  /// @brief Width of the grid in cells.
-  int width;
-  /// @brief Height of the grid in cells.
-  int height;
-
-  GridDrawer(int width, int height);
-
-  int draw(int y, int x);
-  void focus(int x, int y);
-  void blur(int x, int y);
-  void flag(int x, int y);
-  void reveal(int x, int y, int count, bool has_bomb);
-
-private:
-  std::vector<GridCellDrawer *> cells;
-  GridCellDrawer *focused;
-};
-
-// #endregion Grid
 
 // #region Menus
 

@@ -117,20 +117,10 @@ namespace std
   }
 
   /// @brief Returns the current selected cell.
-  /// @return O pointer to the current selected cell.
+  /// @return The pointer to the current selected cell.
   GridCell *GridPointer::get_cell()
   {
     return this->parent->get_cell(this->x, this->y);
-  }
-
-  int GridPointer::get_x()
-  {
-    return this->x;
-  }
-
-  int GridPointer::get_y()
-  {
-    return this->y;
   }
 
   // #endregion GridPointer
@@ -179,17 +169,17 @@ namespace std
 
   void GridRenderHandler::notify(RenderEvent *event)
   {
-    this->grid->drawer->draw(event->y, event->x);
+    render_grid(this->grid, event);
   }
 
-  PointerMovementHandler::PointerMovementHandler(GridDrawer *drawer)
+  PointerMovementHandler::PointerMovementHandler(Grid *grid)
   {
-    this->drawer = drawer;
+    this->grid = grid;
   }
 
   void PointerMovementHandler::notify(MovementEvent *event)
   {
-    this->drawer->focus(event->x, event->y);
+    this->grid->focus();
   }
 
   // #endregion GridKeyboardHandler
@@ -204,7 +194,6 @@ namespace std
     this->width = width;
     this->height = height;
     this->pointer = new GridPointer(this);
-    this->drawer = new GridDrawer(width, height);
     this->cells = vector<GridCell *>();
     this->focused = NULL;
 
@@ -213,7 +202,7 @@ namespace std
     this->on_key_press = new GridKeyboardHandler(this);
     this->on_render = new GridRenderHandler(this);
 
-    this->pointer->movement->subscribe(new PointerMovementHandler(this->drawer));
+    this->pointer->movement->subscribe(new PointerMovementHandler(this));
 
     srand((unsigned)time(NULL));
 
@@ -239,6 +228,13 @@ namespace std
     return this->cells[i];
   }
 
+  /// @brief Returns a list of all the cells in this grid.
+  /// @return A vector containing all the cells.
+  vector<GridCell *> Grid::get_cells()
+  {
+    return this->cells;
+  }
+
   /// @brief Gets all the cells the neighbors the specified cell.
   /// @param x X coordinate of the cell to get the neighbors.
   /// @param y Y coordinate of the cell to get the neighbors.
@@ -251,15 +247,15 @@ namespace std
     {
       for (auto y_off = -1; y_off < 2; y_off++)
       {
-        if (x_off == 0 && y_off == 0)
-          continue;
-
-        auto _x = x + x_off;
-        auto _y = y + y_off;
-
-        if (_x >= 0 && _y >= 0 && _x < this->width && _y < this->height)
+        if (x_off != 0 || y_off != 0)
         {
-          neighborhood.push_back(this->get_cell(_x, _y));
+          auto _x = x + x_off;
+          auto _y = y + y_off;
+
+          if (_x >= 0 && _y >= 0 && _x < this->width && _y < this->height)
+          {
+            neighborhood.push_back(this->get_cell(_x, _y));
+          }
         }
       }
     }
@@ -344,10 +340,9 @@ namespace std
 
       if (was_revealed)
       {
-        this->drawer->reveal(cell->x, cell->y, cell->bomb_count, cell->has_bomb);
-
         if (cell->has_bomb)
         {
+          this->reveal_all(false);
           this->state->notify(new GridStateEvent(false));
 
           break;
@@ -385,6 +380,34 @@ namespace std
       }
     }
 
+    this->check_state();
+  }
+
+  /// @brief Reveal algorithm for when the game is over.
+  void Grid::reveal_all(bool won)
+  {
+    if (won)
+    {
+      for (auto cell : this->safe_cells)
+        cell->reveal();
+    }
+    else
+    {
+      for (auto cell : this->bombs)
+        cell->reveal();
+    }
+  }
+
+  /// @brief Flags the cell selected by the pointer.
+  void Grid::flag()
+  {
+    this->pointer->get_cell()->flag();
+  }
+
+  /// @brief Verifies if all the bombs where flagged of all the safe cells were revelled.
+  void Grid::check_state()
+  {
+    // Verifies that all bombs were flagged.
     bool all_flagged = true;
 
     for (auto bomb : this->bombs)
@@ -394,8 +417,12 @@ namespace std
     }
 
     if (all_flagged)
+    {
+      this->reveal_all(false);
       this->state->notify(new GridStateEvent(true));
+    }
 
+    // Verifies that all safe squares were revealed.
     bool all_revealed = true;
 
     for (auto cell : this->safe_cells)
@@ -405,19 +432,92 @@ namespace std
     }
 
     if (all_revealed)
+    {
+      this->reveal_all(false);
       this->state->notify(new GridStateEvent(true));
+    }
   }
 
-  /// @brief Flags the cell selected by the pointer.
-  void Grid::flag()
+  /// @brief Puts the cell pointed by this grid's pointer in focus.
+  void Grid::focus()
   {
-    auto was_flagged = this->pointer->get_cell()->flag();
-
-    if (was_flagged)
+    if (this->focused != NULL)
     {
-      this->drawer->flag(this->pointer->get_x(), this->pointer->get_y());
+      this->focused->is_focused = false;
     }
+
+    this->focused = this->pointer->get_cell();
+    this->focused->is_focused = true;
   }
 
   // #endregion Grid
 }
+
+/// @brief Renders a grid cell when a render event is triggered.
+/// @param cell Pointer to the grid cell to render.
+/// @param event Render event that triggered the render.
+void render_cell(std::GridCell *cell, std::RenderEvent *event)
+{
+  if (cell->is_focused)
+    attron(A_DIM);
+
+  int x = event->x + cell->x * 2;
+  int y = event->y + cell->y;
+
+  if (cell->is_revealed)
+  {
+    auto bomb_count = cell->bomb_count;
+
+    std::string lft_side[] = {" ", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "("};
+    std::string rgt_side[] = {" ", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", ")"};
+
+    std::string label = lft_side[bomb_count] + rgt_side[bomb_count];
+
+    attron(COLOR_PAIR(100 + bomb_count));
+
+    mvprintw(y, x, label.c_str());
+
+    attroff(COLOR_PAIR(100 + bomb_count));
+  }
+  else
+  {
+    attron(COLOR_PAIR(100));
+
+    mvprintw(y, x, cell->has_flag ? " ╕" : "░░");
+
+    attron(COLOR_PAIR(100));
+  }
+
+  if (cell->is_focused)
+    attroff(A_DIM);
+};
+
+/// @brief Render a grid object when a render event is triggered.
+/// @param grid Pointer to the grid to render.
+/// @param event Render event that triggered the render.
+void render_grid(std::Grid *grid, std::RenderEvent *event)
+{
+  // Necessary for printing wide chars.
+  attron(A_ALTCHARSET);
+
+  // Initialize the color pairs.
+  init_pair(100, COLOR_WHITE, COLOR_BLACK);  // 0
+  init_pair(101, COLOR_GREEN, COLOR_BLACK);  // 1
+  init_pair(102, COLOR_BLUE, COLOR_BLACK);   // 2
+  init_pair(103, COLOR_YELLOW, COLOR_BLACK); // 3
+  init_pair(104, COLOR_YELLOW, COLOR_BLACK); // 4
+  init_pair(105, COLOR_RED, COLOR_BLACK);    // 5
+  init_pair(106, COLOR_RED, COLOR_BLACK);    // 6
+  init_pair(107, COLOR_RED, COLOR_BLACK);    // 7
+  init_pair(108, COLOR_RED, COLOR_BLACK);    // 8
+  init_pair(109, COLOR_RED, COLOR_BLACK);    // Has bomb
+
+  for (auto cell : grid->get_cells())
+  {
+    auto cell_event = new std::RenderEvent(event->width, event->height, event->x - grid->width, event->y);
+
+    render_cell(cell, cell_event);
+  }
+
+  attroff(A_ALTCHARSET);
+};

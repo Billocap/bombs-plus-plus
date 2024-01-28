@@ -34,7 +34,6 @@ int main()
 
   Menu menu;
 
-  // menu.add_option("Continue", new EmptyOption());
   menu.add_option("New game", new GoToOption(&main_game, "diff"));
   menu.add_option("Exit", new ExitOption(&main_game));
 
@@ -51,8 +50,13 @@ int main()
   diff_menu.drawer->set_banner(&title_banner);
   diff_menu.drawer->focus(0);
 
+  Menu credit_menu;
+
+  credit_menu.add_option("Menu", new GoToOption(&main_game, "main"));
+
   main_game.add_menu("main", &menu);
   main_game.add_menu("diff", &diff_menu);
+  main_game.add_menu("credit", &credit_menu);
 
   KeyboardDispatcher keyboard;
 
@@ -79,11 +83,6 @@ int main()
     keyboard.notify(new KeyboardEvent(c));
 
     attroff(A_INVIS);
-
-    if (main_game.finished)
-    {
-      main_game.stop();
-    }
   }
 
   attroff(A_INVIS);
@@ -91,15 +90,6 @@ int main()
   curs_set(1);
 
   endwin();
-
-  if (main_game.won)
-  {
-    cout << "You Won" << endl;
-  }
-  else
-  {
-    cout << "You Lost" << endl;
-  }
 
   return 0;
 }

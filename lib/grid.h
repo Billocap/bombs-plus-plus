@@ -4,6 +4,8 @@
 #include <vector>
 #include <cstdlib>
 #include <time.h>
+#include <ncursesw/ncurses.h>
+#include <string>
 
 #include "ui.h"
 #include "events.h"
@@ -39,12 +41,12 @@ namespace std
   class PointerMovementHandler : public IEventHandler<MovementEvent>
   {
   public:
-    PointerMovementHandler(GridDrawer *drawer);
+    PointerMovementHandler(Grid *grid);
 
     void notify(MovementEvent *event);
 
   private:
-    GridDrawer *drawer;
+    Grid *grid;
   };
 
   class GridStateEvent
@@ -106,8 +108,6 @@ namespace std
     void go_up();
     void go_down();
     GridCell *get_cell();
-    int get_x();
-    int get_y();
 
   private:
     /// @brief Pointers X coordinate.
@@ -123,40 +123,45 @@ namespace std
   class Grid
   {
   public:
-    /// @brief Renderer for this grid.
-    GridDrawer *drawer;
+    /// @brief Keyboard event handler.
     GridKeyboardHandler *on_key_press;
+    /// @brief Render event handler.
     GridRenderHandler *on_render;
     /// @brief Width of the grid in cells.
     int width;
     /// @brief Height of the grid in cells.
     int height;
-    /// @brief Tells if a bomb was revealed.
-    bool exploded = false;
-    /// @brief Tells if all the cells were revealed.
-    bool completed = false;
     /// @brief Grid pointer keeps track of the current selected cell.
     GridPointer *pointer;
+    /// @brief Event dispatcher for grid state changes.
     GridStateDispatcher *state;
 
     Grid(int width, int height);
 
     GridCell *get_cell(int x, int y);
+    vector<GridCell *> get_cells();
     bool place_bomb_at(int x, int y);
     vector<GridCell *> get_neighbors(int x, int y);
     void place_bombs(int amount);
     void reveal();
+    void reveal_all(bool won);
     void flag();
+    void focus();
+    void check_state();
 
   private:
+    /// @brief Current cell in focus by the pointer.
+    GridCell *focused;
     /// @brief Collection of cells this grid contains.
     vector<GridCell *> cells;
-
-    GridCell *focused;
-
+    /// @brief List of cells that contains a bomb.
     vector<GridCell *> bombs;
+    /// @brief List of cells that are empty.
     vector<GridCell *> safe_cells;
   };
 }
+
+void render_cell(std::GridCell *cell, std::RenderEvent *event);
+void render_grid(std::Grid *grid, std::RenderEvent *event);
 
 #endif
