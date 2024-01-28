@@ -2,6 +2,12 @@
 
 Bombs++ is an implementation of Minesweeper in C++. It runs on the terminal window and can only be played with the keyboard.
 
+## Previews
+
+![preview menu](/doc/print-menu.png)
+![preview in game](/doc/preview-game.png)
+![preview end game](/doc/print-endgame.png)
+
 ## Install
 
 This project only works on Linux (I mean Windows already comes with Minesweeper installed).
