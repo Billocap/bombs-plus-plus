@@ -1,4 +1,6 @@
-#include "game.h"
+#include <game/events.h>
+#include <game/game.h>
+#include <game/render.h>
 
 namespace std
 {

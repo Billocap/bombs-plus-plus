@@ -6,12 +6,12 @@
 
 #include <events/kbd.h>
 #include <events/render.h>
+#include <game/game.h>
+#include <menu/menu.h>
+#include <menu/opts.h>
 #include <io.h>
 
 #include "lib/ui.h"
-#include "lib/game.h"
-#include "lib/menuopts.h"
-#include "lib/menu.h"
 
 using namespace std;
 

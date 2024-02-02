@@ -1,4 +1,6 @@
-#include "menu.h"
+#include <menu/opts.h>
+#include <menu/events.h>
+#include <menu/menu.h>
 
 namespace std
 {

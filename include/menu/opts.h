@@ -3,8 +3,9 @@
 
 #include <string>
 
+#include <game/game.h>
+
 #include "menu.h"
-#include "game.h"
 
 namespace std
 {
@@ -52,6 +53,6 @@ namespace std
     Game *game;
     Difficulty diff;
   };
-};
+}
 
 #endif
