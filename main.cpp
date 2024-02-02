@@ -4,13 +4,15 @@
 #include <string>
 #include <iostream>
 
+#include <events/kbd.h>
+#include <events/render.h>
+#include <io.h>
+
 #include "lib/grid.h"
 #include "lib/ui.h"
 #include "lib/game.h"
-#include "lib/io.h"
 #include "lib/menuopts.h"
 #include "lib/menu.h"
-#include "lib/events.h"
 
 using namespace std;
 

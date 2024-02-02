@@ -5,7 +5,10 @@
 #include <string>
 #include <ncursesw/ncurses.h>
 
-#include "events.h"
+#include <events/events.h>
+#include <events/kbd.h>
+#include <events/render.h>
+
 #include "grid.h"
 #include "menu.h"
 

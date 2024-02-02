@@ -1,4 +1,6 @@
-#include "events.h"
+#include <events/kbd.h>
+#include <events/move.h>
+#include <events/render.h>
 
 namespace std
 {

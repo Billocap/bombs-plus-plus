@@ -6,7 +6,6 @@
 #include <ncursesw/ncurses.h>
 
 #include "io.h"
-#include "events.h"
 
 // #region Interfaces
 

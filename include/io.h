@@ -15,16 +15,11 @@
 
 namespace std
 {
+  // #region FileIO
+
   vector<string> read_file(string path);
 
-  /// @brief Interface for classes that handle user input.
-  class IInputHandler
-  {
-  public:
-    /// @brief Method for handling keyboard input.
-    /// @param key ASCII code for the key pressed.
-    virtual void handle_input(int key) = 0;
-  };
+  // #endregion FileIO
 }
 
 #endif

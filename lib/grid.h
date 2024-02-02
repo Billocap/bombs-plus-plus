@@ -7,8 +7,12 @@
 #include <ncursesw/ncurses.h>
 #include <string>
 
+#include <events/events.h>
+#include <events/kbd.h>
+#include <events/render.h>
+#include <events/move.h>
+
 #include "ui.h"
-#include "events.h"
 
 namespace std
 {

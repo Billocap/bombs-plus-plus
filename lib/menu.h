@@ -4,7 +4,10 @@
 #include <vector>
 #include <string>
 
-#include "events.h"
+#include <events/events.h>
+#include <events/kbd.h>
+#include <events/render.h>
+
 #include "ui.h"
 
 namespace std
