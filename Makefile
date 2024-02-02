@@ -16,7 +16,7 @@ ENTRY_FLAGS=-l ncursesw
 FLAGS=-pedantic -I ./include
 DEBUG_FLAGS=$(FLAGS) -g
 
-SRC_FILES=$(wildcard **/*.cpp) $(wildcard *.cpp)
+SRC_FILES=$(shell find . -regex ".*\.cpp")
 OBJ_FILES=$(addprefix $(OBJ_FOLDER)/,$(notdir $(SRC_FILES:.cpp=.o)))
 DBG_FILES=$(addprefix $(OBJ_FOLDER)/,$(notdir $(SRC_FILES:.cpp=.dbg.o)))
 
@@ -38,52 +38,42 @@ clean:
 # Entry points
 # Output for debug mode is always the same
 debug: prep dbg.out clean
-	@echo "\nCompilation complete"
+	@echo ""
+	@echo "Compilation complete"
 	@echo "- Mode:    DEBUG"
 	@echo "- Project: $(PROJ_NAME)"
 	@echo "- Binary:  $(BIN_FOLDER)/dbg.out"
 	@echo ""
 
 prod: prep $(PROJ_NAME) clean
-	@echo "\nCompilation complete"
+	@echo ""
+	@echo "Compilation complete"
 	@echo "- Mode:    PRODUCTION"
 	@echo "- Project: $(PROJ_NAME)"
 	@echo "- Binary:  $(BIN_FOLDER)/$(PROJ_NAME)"
 	@echo ""
-#--------------------
+#------------------------
 
-# Main compilation
+# Main file compilation
 dbg.out: $(DBG_FILES)
 	@echo " Compilling project binary ..."
-	$(CC) $^ -o $(BIN_FOLDER)/$@ $(ENTRY_FLAGS) $(DEBUG_FLAGS)
+	$(CC) $^ -o $(BIN_FOLDER)/$@ $(DEBUG_FLAGS) $(ENTRY_FLAGS)
 	@echo " Project binary created"
 
 $(PROJ_NAME): $(OBJ_FILES)
 	@echo " Compilling project binary ..."
-	@$(CC) $^ -o $(BIN_FOLDER)/$@ $(ENTRY_FLAGS) $(FLAGS)
+	@$(CC) $^ -o $(BIN_FOLDER)/$@ $(FLAGS) $(ENTRY_FLAGS)
 	@echo " Project binary created"
-#--------------------
+#------------------------
 
 # Object file compilation
-$(OBJ_FOLDER)/$(ENTRY).dbg.o: $(ENTRY).cpp
-	@echo "- Entry file $^"
+$(OBJ_FILES):
 	@echo " Compilling object file $@ ..."
-	$(CC) -c $^ -o $@ $(DEBUG_FLAGS)
+	@$(CC) -c $(shell find . -regex ".*$(@F:.o=.cpp)") -o $@ $(FLAGS)
 	@echo " Object file $@ compiled"
 
-$(OBJ_FOLDER)/%.dbg.o: **/%.cpp
+$(DBG_FILES):
 	@echo " Compilling object file $@ ..."
-	$(CC) -c $^ -o $@ $(DEBUG_FLAGS)
+	$(CC) -c $(shell find . -regex ".*$(@F:.dbg.o=.cpp)") -o $@ $(DEBUG_FLAGS)
 	@echo " Object file $@ compiled"
-
-$(OBJ_FOLDER)/$(ENTRY).o: $(ENTRY).cpp
-	@echo "- Entry file $^"
-	@echo " Compilling object file $@ ..."
-	@$(CC) -c $^ -o $@ $(FLAGS)
-	@echo " Object file $@ compiled"
-
-$(OBJ_FOLDER)/%.o: **/%.cpp
-	@echo " Compilling object file $@ ..."
-	@$(CC) -c $^ -o $@ $(FLAGS)
-	@echo " Object file $@ compiled"
-#----------------------
+#------------------------
