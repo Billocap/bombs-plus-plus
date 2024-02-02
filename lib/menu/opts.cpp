@@ -6,7 +6,7 @@ namespace std
 
   // #region ExitOption
 
-  ExitOption::ExitOption(Game *game) : IMenuOption()
+  ExitOption::ExitOption(Game *game) : IMenuAction()
   {
     this->game = game;
   }
@@ -20,7 +20,7 @@ namespace std
 
   // #region GoToOption
 
-  GoToOption::GoToOption(Game *game, string name) : IMenuOption()
+  GoToOption::GoToOption(Game *game, string name) : IMenuAction()
   {
     this->game = game;
     this->name = name;
@@ -35,7 +35,7 @@ namespace std
 
   // #region NewGameOption
 
-  NewGameOption::NewGameOption(Game *game, Difficulty diff) : IMenuOption()
+  NewGameOption::NewGameOption(Game *game, Difficulty diff) : IMenuAction()
   {
     this->game = game;
     this->diff = diff;

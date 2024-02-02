@@ -1,5 +1,5 @@
-#ifndef MENU_OPTIONS_H
-#define MENU_OPTIONS_H
+#ifndef MENU_ACTIONS_H
+#define MENU_ACTIONS_H
 
 #include <string>
 
@@ -10,14 +10,14 @@
 namespace std
 {
   /// @brief Represents a menu option that does nothing.
-  class EmptyOption : public IMenuOption
+  class EmptyOption : public IMenuAction
   {
   public:
     void execute();
   };
 
   /// @brief Represents a menu option that exits the game.
-  class ExitOption : public IMenuOption
+  class ExitOption : public IMenuAction
   {
   public:
     ExitOption(Game *game);
@@ -29,7 +29,7 @@ namespace std
   };
 
   /// @brief Represents a menu option that changes the current screen.
-  class GoToOption : public IMenuOption
+  class GoToOption : public IMenuAction
   {
   public:
     GoToOption(Game *game, string name);
@@ -42,7 +42,7 @@ namespace std
   };
 
   /// @brief Represents a menu options that starts a new game.
-  class NewGameOption : public IMenuOption
+  class NewGameOption : public IMenuAction
   {
   public:
     NewGameOption(Game *game, Difficulty diff);

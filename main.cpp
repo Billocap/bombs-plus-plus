@@ -9,9 +9,8 @@
 #include <game/game.h>
 #include <menu/menu.h>
 #include <menu/opts.h>
+#include <ui/ui.h>
 #include <io.h>
-
-#include "lib/ui.h"
 
 using namespace std;
 
@@ -33,31 +32,20 @@ int main()
 
   TextBanner title_banner("assets/banner");
 
-  Menu menu;
+  Menu menu(&title_banner);
 
   menu.add_option("New game", new GoToOption(&main_game, "diff"));
   menu.add_option("Exit", new ExitOption(&main_game));
 
-  menu.drawer->set_banner(&title_banner);
-  menu.drawer->focus(0);
-
-  Menu diff_menu;
+  Menu diff_menu(&title_banner);
 
   diff_menu.add_option("Easy", new NewGameOption(&main_game, D_EASY));
   diff_menu.add_option("Medium", new NewGameOption(&main_game, D_MEDIUM));
   diff_menu.add_option("Hard", new NewGameOption(&main_game, D_HARD));
   diff_menu.add_option("Back", new GoToOption(&main_game, "main"));
 
-  diff_menu.drawer->set_banner(&title_banner);
-  diff_menu.drawer->focus(0);
-
-  Menu credit_menu;
-
-  credit_menu.add_option("Menu", new GoToOption(&main_game, "main"));
-
   main_game.add_menu("main", &menu);
   main_game.add_menu("diff", &diff_menu);
-  main_game.add_menu("credit", &credit_menu);
 
   KeyboardDispatcher keyboard;
 
