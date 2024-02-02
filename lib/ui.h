@@ -5,7 +5,7 @@
 #include <string>
 #include <ncursesw/ncurses.h>
 
-#include "io.h"
+#include <io.h>
 
 // #region Interfaces
 

@@ -8,8 +8,8 @@
 #include <events/events.h>
 #include <events/kbd.h>
 #include <events/render.h>
+#include <grid/grid.h>
 
-#include "grid.h"
 #include "menu.h"
 
 namespace std

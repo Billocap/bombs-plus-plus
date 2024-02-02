@@ -1,4 +1,8 @@
-#include "grid.h"
+#include <grid/cell.h>
+#include <grid/events.h>
+#include <grid/grid.h>
+#include <grid/ptr.h>
+#include <grid/render.h>
 
 namespace std
 {
