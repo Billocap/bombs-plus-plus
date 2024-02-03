@@ -3,10 +3,13 @@
 #include <ncursesw/ncurses.h>
 #include <string>
 #include <iostream>
+#include <filesystem>
+#include <fstream>
 
 #include <events/kbd.h>
 #include <events/render.h>
 #include <game/game.h>
+#include <grid/grid.h>
 #include <menu/menu.h>
 #include <menu/opts.h>
 #include <ui/ui.h>
@@ -33,6 +36,9 @@ int main()
   TextBanner title_banner("assets/banner");
 
   Menu menu(&title_banner);
+
+  if (filesystem::exists("save"))
+    menu.add_option("Continue", new ContinueOption(&main_game));
 
   menu.add_option("New game", new GoToOption(&main_game, "diff"));
   menu.add_option("Exit", new ExitOption(&main_game));

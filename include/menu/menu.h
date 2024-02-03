@@ -50,6 +50,7 @@ namespace std
     Menu(TextBanner *banner);
 
     void add_option(string label, IMenuAction *action);
+    void remove_option(int id);
     void pointer_up();
     void pointer_down();
     void execute();

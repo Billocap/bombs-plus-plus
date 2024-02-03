@@ -6,6 +6,6 @@
 #include "menu.h"
 
 int render_option(std::MenuOption *option, std::RenderEvent *event);
-int render_menu(std::Menu *menu, std::RenderEvent *event);
+void render_menu(std::Menu *menu, std::RenderEvent *event);
 
 #endif

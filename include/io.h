@@ -15,11 +15,11 @@
 
 namespace std
 {
-  // #region FileIO
-
   vector<string> read_file(string path);
 
-  // #endregion FileIO
+  string read_save(string path);
+  void write_save(string path, string data);
+  void delete_save(string path);
 }
 
 #endif

@@ -57,6 +57,8 @@ namespace std
       }
       else
       {
+        this->game->save_data();
+
         this->game->get_grid()->on_key_press->notify(event);
       }
     }
@@ -73,9 +75,13 @@ namespace std
 
   void GridStateHandler::notify(GridStateEvent *event)
   {
+    delete_save("save");
+
     this->game->pause();
     this->game->finished = true;
     this->game->won = event->won;
+
+    this->game->get_menu("main")->remove_option(0);
   }
 
   // #endregion Events
@@ -160,8 +166,37 @@ namespace std
       break;
     }
 
+    this->save_data();
+
     this->grid->state->subscribe(this->on_grid_state);
     this->go_to("game");
+  }
+
+  /// @brief Creates a new game from a previous save file.
+  void Game::load_data()
+  {
+    this->resume();
+
+    this->finished = false;
+    this->won = false;
+
+    this->grid = new Grid(8, 8);
+
+    auto data = read_save("save");
+
+    this->grid->from_save(data);
+
+    this->grid->state->subscribe(this->on_grid_state);
+    this->go_to("game");
+  }
+
+  /// @brief Saves the game by overwriting previous save.
+  void Game::save_data()
+  {
+    auto data = this->grid->to_save();
+
+    if (data.length() > 0)
+      write_save("save", data);
   }
 
   /// @brief Returns the main grid.
@@ -194,6 +229,11 @@ namespace std
   Menu *Game::get_menu()
   {
     return this->menus[this->screen];
+  }
+
+  Menu *Game::get_menu(string name)
+  {
+    return this->menus[name];
   }
 
   // #endregion Game

@@ -6,6 +6,7 @@
 
 #include <grid/grid.h>
 #include <menu/menu.h>
+#include <io.h>
 
 #include "events.h"
 
@@ -56,6 +57,9 @@ namespace std
     void add_menu(string name, Menu *menu);
     void go_to(string name);
     Menu *get_menu();
+    Menu *get_menu(string name);
+    void load_data();
+    void save_data();
   };
 }
 

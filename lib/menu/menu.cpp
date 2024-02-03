@@ -83,6 +83,13 @@ namespace std
     this->options.push_back(new MenuOption(label, action));
   }
 
+  void Menu::remove_option(int id)
+  {
+    auto it = this->options.begin() + id;
+
+    this->options.erase(it);
+  }
+
   void Menu::pointer_up()
   {
     this->options[this->pointer]->focused = false;
@@ -128,7 +135,7 @@ int render_option(std::MenuOption *option, std::RenderEvent *event)
   return event->y + 1;
 }
 
-int render_menu(std::Menu *menu, std::RenderEvent *event)
+void render_menu(std::Menu *menu, std::RenderEvent *event)
 {
   init_pair(1, COLOR_WHITE, COLOR_BLACK);
 
@@ -159,6 +166,4 @@ int render_menu(std::Menu *menu, std::RenderEvent *event)
     printw("Gabriel Quintino");
     attron(COLOR_PAIR(1));
   }
-
-  return y + 1;
 }

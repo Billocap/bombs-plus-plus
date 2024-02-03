@@ -16,6 +16,18 @@ namespace std
     void execute();
   };
 
+  /// @brief Represents a menu option that loads previous saves.
+  class ContinueOption : public IMenuAction
+  {
+  public:
+    ContinueOption(Game *game);
+
+    void execute();
+
+  private:
+    Game *game;
+  };
+
   /// @brief Represents a menu option that exits the game.
   class ExitOption : public IMenuAction
   {

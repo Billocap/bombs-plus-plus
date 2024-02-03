@@ -454,6 +454,93 @@ namespace std
     this->focused->is_focused = true;
   }
 
+  void Grid::flag_at(int x, int y)
+  {
+    this->get_cell(x, y)->flag();
+  }
+
+  void Grid::reveal_at(int x, int y)
+  {
+    this->get_cell(x, y)->reveal();
+  }
+
+  string Grid::to_save()
+  {
+    string data;
+
+    data += this->width;
+    data += this->height;
+
+    for (auto y = 0; y < this->height; y++)
+    {
+      for (auto x = 0; x < this->width; x++)
+      {
+        auto cell = this->get_cell(x, y);
+
+        auto state = (cell->has_bomb << 2) | (cell->has_flag << 1) | cell->is_revealed;
+
+        data += state + 8;
+      }
+    }
+
+    return data;
+  }
+
+  void Grid::from_save(string data)
+  {
+    int width = data[0];
+    int height = data[1];
+
+    this->width = width;
+    this->height = height;
+
+    this->cells.clear();
+    this->bombs.clear();
+    this->safe_cells.clear();
+
+    for (auto y = 0; y < height; y++)
+    {
+      for (auto x = 0; x < width; x++)
+      {
+        auto c = new GridCell(x, y);
+
+        this->cells.push_back(c);
+      }
+    }
+
+    for (auto y = 0; y < height; y++)
+    {
+      for (auto x = 0; x < width; x++)
+      {
+        int state = data[2 + y * width + x];
+
+        if (state & 4)
+          this->place_bomb_at(x, y);
+
+        if (state & 2)
+        {
+          this->flag_at(x, y);
+        }
+        else if (state & 1)
+        {
+          this->reveal_at(x, y);
+        }
+      }
+    }
+
+    for (auto cell : this->cells)
+    {
+      if (cell->has_bomb)
+      {
+        this->bombs.push_back(cell);
+      }
+      else
+      {
+        this->safe_cells.push_back(cell);
+      }
+    }
+  }
+
   // #endregion Grid
 }
 

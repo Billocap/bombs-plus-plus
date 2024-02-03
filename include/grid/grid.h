@@ -34,10 +34,14 @@ namespace std
     vector<GridCell *> get_neighbors(int x, int y);
     void place_bombs(int amount);
     void reveal();
+    void reveal_at(int x, int y);
     void reveal_all(bool won);
     void flag();
+    void flag_at(int x, int y);
     void focus();
     void check_state();
+    string to_save();
+    void from_save(string data);
 
   private:
     /// @brief Current cell in focus by the pointer.

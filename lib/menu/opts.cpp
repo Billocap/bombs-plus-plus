@@ -18,6 +18,20 @@ namespace std
 
   // #endregion ExitOption
 
+  // #region ContinueOption
+
+  ContinueOption::ContinueOption(Game *game)
+  {
+    this->game = game;
+  }
+
+  void ContinueOption::execute()
+  {
+    this->game->load_data();
+  }
+
+  // #endregion ContinueOption
+
   // #region GoToOption
 
   GoToOption::GoToOption(Game *game, string name) : IMenuAction()
