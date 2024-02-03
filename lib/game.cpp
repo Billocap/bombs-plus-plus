@@ -81,7 +81,10 @@ namespace std
     this->game->finished = true;
     this->game->won = event->won;
 
-    this->game->get_menu("main")->remove_option(0);
+    auto main_menu = this->game->get_menu("main");
+
+    if (main_menu->options[0]->label == "Continue")
+      main_menu->remove_option(0);
   }
 
   // #endregion Events
