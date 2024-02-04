@@ -7,66 +7,63 @@
 #include <events/render.h>
 #include <io.h>
 
-namespace std
+class Grid;
+
+// #region Handlers
+
+class GridKeyboardHandler : public IEventHandler<KeyboardEvent>
 {
-  class Grid;
+public:
+  GridKeyboardHandler(Grid *grid);
 
-  // #region Handlers
+  void notify(KeyboardEvent *event);
 
-  class GridKeyboardHandler : public IEventHandler<KeyboardEvent>
-  {
-  public:
-    GridKeyboardHandler(Grid *grid);
+private:
+  Grid *grid;
+};
 
-    void notify(KeyboardEvent *event);
+class GridRenderHandler : public IEventHandler<RenderEvent>
+{
+public:
+  GridRenderHandler(Grid *grid);
 
-  private:
-    Grid *grid;
-  };
+  void notify(RenderEvent *event);
 
-  class GridRenderHandler : public IEventHandler<RenderEvent>
-  {
-  public:
-    GridRenderHandler(Grid *grid);
+private:
+  Grid *grid;
+};
 
-    void notify(RenderEvent *event);
+class PointerMovementHandler : public IEventHandler<MovementEvent>
+{
+public:
+  PointerMovementHandler(Grid *grid);
 
-  private:
-    Grid *grid;
-  };
+  void notify(MovementEvent *event);
 
-  class PointerMovementHandler : public IEventHandler<MovementEvent>
-  {
-  public:
-    PointerMovementHandler(Grid *grid);
+private:
+  Grid *grid;
+};
 
-    void notify(MovementEvent *event);
+// #endregion Handlers
 
-  private:
-    Grid *grid;
-  };
+// #region Events
 
-  // #endregion Handlers
+class GridStateEvent
+{
+public:
+  bool won;
 
-  // #region Events
+  GridStateEvent(bool won);
+};
 
-  class GridStateEvent
-  {
-  public:
-    bool won;
+class GridStateDispatcher : public IEventDispatcher<GridStateEvent>
+{
+public:
+  void subscribe(IEventHandler<GridStateEvent> *handler);
+  void unsubscribe(IEventHandler<GridStateEvent> *handler);
+  void notify(GridStateEvent *event);
+};
 
-    GridStateEvent(bool won);
-  };
-
-  class GridStateDispatcher : public IEventDispatcher<GridStateEvent>
-  {
-  public:
-    void subscribe(IEventHandler<GridStateEvent> *handler);
-    void unsubscribe(IEventHandler<GridStateEvent> *handler);
-    void notify(GridStateEvent *event);
-  };
-
-  // #endregion Events
-}
+// #endregion Events
 
 #endif

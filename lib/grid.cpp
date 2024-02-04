@@ -4,357 +4,373 @@
 #include <grid/ptr.h>
 #include <grid/render.h>
 
-namespace std
+// #region GridStateEvent
+
+GridStateEvent::GridStateEvent(bool won)
 {
-  // #region GridStateEvent
+  this->won = won;
+}
 
-  GridStateEvent::GridStateEvent(bool won)
+void GridStateDispatcher::subscribe(IEventHandler<GridStateEvent> *handler)
+{
+  this->handlers.push_back(handler);
+
+  handler->id = this->handlers.size();
+}
+
+void GridStateDispatcher::unsubscribe(IEventHandler<GridStateEvent> *handler)
+{
+  auto it = this->handlers.begin() + handler->id;
+
+  this->handlers.erase(it);
+}
+
+void GridStateDispatcher::notify(GridStateEvent *event)
+{
+  for (auto handler : this->handlers)
   {
-    this->won = won;
+    handler->notify(event);
+  }
+}
+
+// #endregion GridStateEvent
+
+// #region GridCell
+
+/// @brief Creates a nes cell at the specified coordinates.
+/// @param x X position on the grid.
+/// @param y Y position on the grid.
+GridCell::GridCell(int x, int y)
+{
+  this->x = x;
+  this->y = y;
+}
+
+/// @brief Places a on this cell.
+/// @return Boolean that tells if the state changed.
+bool GridCell::flag()
+{
+  if (!this->is_revealed)
+  {
+    this->has_flag = !this->has_flag;
+
+    return true;
   }
 
-  void GridStateDispatcher::subscribe(IEventHandler<GridStateEvent> *handler)
-  {
-    this->handlers.push_back(handler);
+  return false;
+}
 
-    handler->id = this->handlers.size();
+/// @brief Reveal this cell.
+/// @return Boolean that tells if the state changed.
+bool GridCell::reveal()
+{
+  if (!this->has_flag)
+  {
+    this->is_revealed = true;
+
+    return true;
   }
 
-  void GridStateDispatcher::unsubscribe(IEventHandler<GridStateEvent> *handler)
-  {
-    auto it = this->handlers.begin() + handler->id;
+  return false;
+}
 
-    this->handlers.erase(it);
+// #endregion GridCell
+
+// #region GridPointer
+
+/// @brief Creates a new grid pointer.
+/// @param parent Grid object that contains this pointer.
+GridPointer::GridPointer(Grid *parent)
+{
+  this->parent = parent;
+  this->movement = new MovementDispatcher();
+}
+
+/// @brief Moves the pointer up one cell.
+void GridPointer::go_up()
+{
+  this->y = (this->parent->height + this->y - 1) % this->parent->height;
+
+  this->movement->notify(new MovementEvent(this->x, this->y));
+}
+
+/// @brief Moves the pointer down one cell.
+void GridPointer::go_down()
+{
+  this->y = (this->y + 1) % this->parent->height;
+
+  this->movement->notify(new MovementEvent(this->x, this->y));
+}
+
+/// @brief Moves the pointer left one cell.
+void GridPointer::go_left()
+{
+  this->x = (this->parent->width + this->x - 1) % this->parent->width;
+
+  this->movement->notify(new MovementEvent(this->x, this->y));
+}
+
+/// @brief Moves the pointer right one cell.
+void GridPointer::go_right()
+{
+  this->x = (this->x + 1) % this->parent->width;
+
+  this->movement->notify(new MovementEvent(this->x, this->y));
+}
+
+/// @brief Returns the current selected cell.
+/// @return The pointer to the current selected cell.
+GridCell *GridPointer::get_cell()
+{
+  return this->parent->get_cell(this->x, this->y);
+}
+
+// #endregion GridPointer
+
+// #region GridKeyboardHandler
+
+GridKeyboardHandler::GridKeyboardHandler(Grid *grid)
+{
+  this->grid = grid;
+}
+
+void GridKeyboardHandler::notify(KeyboardEvent *event)
+{
+  switch (event->key)
+  {
+  case IO_KEY_UP:
+    this->grid->pointer->go_up();
+    break;
+
+  case IO_KEY_DOWN:
+    this->grid->pointer->go_down();
+    break;
+
+  case IO_KEY_LEFT:
+    this->grid->pointer->go_left();
+    break;
+
+  case IO_KEY_RIGHT:
+    this->grid->pointer->go_right();
+    break;
+
+  case IO_KEY_CONFIRM:
+    this->grid->reveal();
+    break;
+
+  case IO_KEY_ACCENT:
+    this->grid->flag();
+    break;
   }
+}
 
-  void GridStateDispatcher::notify(GridStateEvent *event)
+GridRenderHandler::GridRenderHandler(Grid *grid)
+{
+  this->grid = grid;
+}
+
+void GridRenderHandler::notify(RenderEvent *event)
+{
+  render_grid(this->grid, event);
+}
+
+PointerMovementHandler::PointerMovementHandler(Grid *grid)
+{
+  this->grid = grid;
+}
+
+void PointerMovementHandler::notify(MovementEvent *event)
+{
+  this->grid->focus();
+}
+
+// #endregion GridKeyboardHandler
+
+// #region Grid
+
+/// @brief Creates a new grid with the specified size.
+/// @param width Width for the grid.
+/// @param height Height for the grid.
+Grid::Grid(int width, int height)
+{
+  this->width = width;
+  this->height = height;
+  this->pointer = new GridPointer(this);
+  this->cells = std::vector<GridCell *>();
+  this->focused = NULL;
+
+  this->state = new GridStateDispatcher();
+
+  this->on_key_press = new GridKeyboardHandler(this);
+  this->on_render = new GridRenderHandler(this);
+
+  this->pointer->movement->subscribe(new PointerMovementHandler(this));
+
+  srand((unsigned)time(NULL));
+
+  for (auto y = 0; y < height; y++)
   {
-    for (auto handler : this->handlers)
+    for (auto x = 0; x < width; x++)
     {
-      handler->notify(event);
+      auto c = new GridCell(x, y);
+
+      this->cells.push_back(c);
     }
   }
+}
 
-  // #endregion GridStateEvent
+/// @brief Returns the GridCell at the specified position.
+/// @param x X coordinate for the cell.
+/// @param y Y coordinate for the cell.
+/// @return A pointer for the desired cell.
+GridCell *Grid::get_cell(int x, int y)
+{
+  int i = y * this->width + x;
 
-  // #region GridCell
+  return this->cells[i];
+}
 
-  /// @brief Creates a nes cell at the specified coordinates.
-  /// @param x X position on the grid.
-  /// @param y Y position on the grid.
-  GridCell::GridCell(int x, int y)
+/// @brief Returns a list of all the cells in this grid.
+/// @return A vector containing all the cells.
+std::vector<GridCell *> Grid::get_cells()
+{
+  return this->cells;
+}
+
+/// @brief Gets all the cells the neighbors the specified cell.
+/// @param x X coordinate of the cell to get the neighbors.
+/// @param y Y coordinate of the cell to get the neighbors.
+/// @return A vector containing the neighbors.
+std::vector<GridCell *> Grid::get_neighbors(int x, int y)
+{
+  std::vector<GridCell *> neighborhood;
+
+  for (auto x_off = -1; x_off < 2; x_off++)
   {
-    this->x = x;
-    this->y = y;
-  }
-
-  /// @brief Places a on this cell.
-  /// @return Boolean that tells if the state changed.
-  bool GridCell::flag()
-  {
-    if (!this->is_revealed)
+    for (auto y_off = -1; y_off < 2; y_off++)
     {
-      this->has_flag = !this->has_flag;
-
-      return true;
-    }
-
-    return false;
-  }
-
-  /// @brief Reveal this cell.
-  /// @return Boolean that tells if the state changed.
-  bool GridCell::reveal()
-  {
-    if (!this->has_flag)
-    {
-      this->is_revealed = true;
-
-      return true;
-    }
-
-    return false;
-  }
-
-  // #endregion GridCell
-
-  // #region GridPointer
-
-  /// @brief Creates a new grid pointer.
-  /// @param parent Grid object that contains this pointer.
-  GridPointer::GridPointer(Grid *parent)
-  {
-    this->parent = parent;
-    this->movement = new MovementDispatcher();
-  }
-
-  /// @brief Moves the pointer up one cell.
-  void GridPointer::go_up()
-  {
-    this->y = (this->parent->height + this->y - 1) % this->parent->height;
-
-    this->movement->notify(new MovementEvent(this->x, this->y));
-  }
-
-  /// @brief Moves the pointer down one cell.
-  void GridPointer::go_down()
-  {
-    this->y = (this->y + 1) % this->parent->height;
-
-    this->movement->notify(new MovementEvent(this->x, this->y));
-  }
-
-  /// @brief Moves the pointer left one cell.
-  void GridPointer::go_left()
-  {
-    this->x = (this->parent->width + this->x - 1) % this->parent->width;
-
-    this->movement->notify(new MovementEvent(this->x, this->y));
-  }
-
-  /// @brief Moves the pointer right one cell.
-  void GridPointer::go_right()
-  {
-    this->x = (this->x + 1) % this->parent->width;
-
-    this->movement->notify(new MovementEvent(this->x, this->y));
-  }
-
-  /// @brief Returns the current selected cell.
-  /// @return The pointer to the current selected cell.
-  GridCell *GridPointer::get_cell()
-  {
-    return this->parent->get_cell(this->x, this->y);
-  }
-
-  // #endregion GridPointer
-
-  // #region GridKeyboardHandler
-
-  GridKeyboardHandler::GridKeyboardHandler(Grid *grid)
-  {
-    this->grid = grid;
-  }
-
-  void GridKeyboardHandler::notify(KeyboardEvent *event)
-  {
-    switch (event->key)
-    {
-    case IO_KEY_UP:
-      this->grid->pointer->go_up();
-      break;
-
-    case IO_KEY_DOWN:
-      this->grid->pointer->go_down();
-      break;
-
-    case IO_KEY_LEFT:
-      this->grid->pointer->go_left();
-      break;
-
-    case IO_KEY_RIGHT:
-      this->grid->pointer->go_right();
-      break;
-
-    case IO_KEY_CONFIRM:
-      this->grid->reveal();
-      break;
-
-    case IO_KEY_ACCENT:
-      this->grid->flag();
-      break;
-    }
-  }
-
-  GridRenderHandler::GridRenderHandler(Grid *grid)
-  {
-    this->grid = grid;
-  }
-
-  void GridRenderHandler::notify(RenderEvent *event)
-  {
-    render_grid(this->grid, event);
-  }
-
-  PointerMovementHandler::PointerMovementHandler(Grid *grid)
-  {
-    this->grid = grid;
-  }
-
-  void PointerMovementHandler::notify(MovementEvent *event)
-  {
-    this->grid->focus();
-  }
-
-  // #endregion GridKeyboardHandler
-
-  // #region Grid
-
-  /// @brief Creates a new grid with the specified size.
-  /// @param width Width for the grid.
-  /// @param height Height for the grid.
-  Grid::Grid(int width, int height)
-  {
-    this->width = width;
-    this->height = height;
-    this->pointer = new GridPointer(this);
-    this->cells = vector<GridCell *>();
-    this->focused = NULL;
-
-    this->state = new GridStateDispatcher();
-
-    this->on_key_press = new GridKeyboardHandler(this);
-    this->on_render = new GridRenderHandler(this);
-
-    this->pointer->movement->subscribe(new PointerMovementHandler(this));
-
-    srand((unsigned)time(NULL));
-
-    for (auto y = 0; y < height; y++)
-    {
-      for (auto x = 0; x < width; x++)
+      if (x_off != 0 || y_off != 0)
       {
-        auto c = new GridCell(x, y);
+        auto _x = x + x_off;
+        auto _y = y + y_off;
 
-        this->cells.push_back(c);
-      }
-    }
-  }
-
-  /// @brief Returns the GridCell at the specified position.
-  /// @param x X coordinate for the cell.
-  /// @param y Y coordinate for the cell.
-  /// @return A pointer for the desired cell.
-  GridCell *Grid::get_cell(int x, int y)
-  {
-    int i = y * this->width + x;
-
-    return this->cells[i];
-  }
-
-  /// @brief Returns a list of all the cells in this grid.
-  /// @return A vector containing all the cells.
-  vector<GridCell *> Grid::get_cells()
-  {
-    return this->cells;
-  }
-
-  /// @brief Gets all the cells the neighbors the specified cell.
-  /// @param x X coordinate of the cell to get the neighbors.
-  /// @param y Y coordinate of the cell to get the neighbors.
-  /// @return A vector containing the neighbors.
-  vector<GridCell *> Grid::get_neighbors(int x, int y)
-  {
-    vector<GridCell *> neighborhood;
-
-    for (auto x_off = -1; x_off < 2; x_off++)
-    {
-      for (auto y_off = -1; y_off < 2; y_off++)
-      {
-        if (x_off != 0 || y_off != 0)
+        if (_x >= 0 && _y >= 0 && _x < this->width && _y < this->height)
         {
-          auto _x = x + x_off;
-          auto _y = y + y_off;
-
-          if (_x >= 0 && _y >= 0 && _x < this->width && _y < this->height)
-          {
-            neighborhood.push_back(this->get_cell(_x, _y));
-          }
+          neighborhood.push_back(this->get_cell(_x, _y));
         }
       }
     }
-
-    return neighborhood;
   }
 
-  /// @brief Places a bomb in the specified grid position.
-  /// @param x X coordinate to place the bomb in.
-  /// @param y Y coordinate to place the bomb in.
-  /// @return A boolean that defines if the bomb was placed.
-  bool Grid::place_bomb_at(int x, int y)
-  {
-    auto c = this->get_cell(x, y);
+  return neighborhood;
+}
 
-    if (c->has_bomb)
+/// @brief Places a bomb in the specified grid position.
+/// @param x X coordinate to place the bomb in.
+/// @param y Y coordinate to place the bomb in.
+/// @return A boolean that defines if the bomb was placed.
+bool Grid::place_bomb_at(int x, int y)
+{
+  auto c = this->get_cell(x, y);
+
+  if (c->has_bomb)
+  {
+    return false;
+  }
+  else
+  {
+    c->has_bomb = true;
+    c->bomb_count = 9;
+
+    for (auto neighbor : this->get_neighbors(x, y))
     {
-      return false;
+      if (!neighbor->has_bomb)
+        neighbor->bomb_count++;
+    }
+
+    return true;
+  }
+}
+
+/// @brief Place a certain amount of bombs in random positions.
+/// @param amount Number of bombs to place.
+void Grid::place_bombs(int amount)
+{
+  int n = 0;
+
+  while (n < amount)
+  {
+    int x = rand() % this->width;
+    int y = rand() % this->height;
+
+    while (!this->place_bomb_at(x, y))
+    {
+      x = rand() % this->width;
+      y = rand() % this->height;
+    }
+
+    n++;
+  }
+
+  for (auto cell : this->cells)
+  {
+    if (cell->has_bomb)
+    {
+      this->bombs.push_back(cell);
     }
     else
     {
-      c->has_bomb = true;
-      c->bomb_count = 9;
-
-      for (auto neighbor : this->get_neighbors(x, y))
-      {
-        if (!neighbor->has_bomb)
-          neighbor->bomb_count++;
-      }
-
-      return true;
+      this->safe_cells.push_back(cell);
     }
   }
+}
 
-  /// @brief Place a certain amount of bombs in random positions.
-  /// @param amount Number of bombs to place.
-  void Grid::place_bombs(int amount)
+/// @brief Runs the reveal algorithm.
+void Grid::reveal()
+{
+  std::vector<GridCell *> frontier;
+
+  frontier.push_back(this->pointer->get_cell());
+
+  while (!frontier.empty())
   {
-    int n = 0;
+    auto cell = frontier.back();
 
-    while (n < amount)
-    {
-      int x = rand() % this->width;
-      int y = rand() % this->height;
+    frontier.pop_back();
 
-      while (!this->place_bomb_at(x, y))
-      {
-        x = rand() % this->width;
-        y = rand() % this->height;
-      }
+    auto was_revealed = cell->reveal();
 
-      n++;
-    }
-
-    for (auto cell : this->cells)
+    if (was_revealed)
     {
       if (cell->has_bomb)
       {
-        this->bombs.push_back(cell);
+        this->reveal_all(false);
+        this->state->notify(new GridStateEvent(false));
+
+        break;
+      }
+
+      auto neighbors = this->get_neighbors(cell->x, cell->y);
+
+      if (cell->bomb_count == 0)
+      {
+        for (auto neighbor : neighbors)
+        {
+          if (!neighbor->is_revealed)
+            frontier.push_back(neighbor);
+        }
       }
       else
       {
-        this->safe_cells.push_back(cell);
-      }
-    }
-  }
+        int flagged = 0;
 
-  /// @brief Runs the reveal algorithm.
-  void Grid::reveal()
-  {
-    vector<GridCell *> frontier;
-
-    frontier.push_back(this->pointer->get_cell());
-
-    while (!frontier.empty())
-    {
-      auto cell = frontier.back();
-
-      frontier.pop_back();
-
-      auto was_revealed = cell->reveal();
-
-      if (was_revealed)
-      {
-        if (cell->has_bomb)
+        for (auto neighbor : neighbors)
         {
-          this->reveal_all(false);
-          this->state->notify(new GridStateEvent(false));
-
-          break;
+          if (neighbor->has_flag)
+            flagged++;
         }
 
-        auto neighbors = this->get_neighbors(cell->x, cell->y);
-
-        if (cell->bomb_count == 0)
+        if (flagged == cell->bomb_count)
         {
           for (auto neighbor : neighbors)
           {
@@ -362,192 +378,173 @@ namespace std
               frontier.push_back(neighbor);
           }
         }
-        else
-        {
-          int flagged = 0;
-
-          for (auto neighbor : neighbors)
-          {
-            if (neighbor->has_flag)
-              flagged++;
-          }
-
-          if (flagged == cell->bomb_count)
-          {
-            for (auto neighbor : neighbors)
-            {
-              if (!neighbor->is_revealed)
-                frontier.push_back(neighbor);
-            }
-          }
-        }
       }
     }
-
-    this->check_state();
   }
 
-  /// @brief Reveal algorithm for when the game is over.
-  void Grid::reveal_all(bool won)
+  this->check_state();
+}
+
+/// @brief Reveal algorithm for when the game is over.
+void Grid::reveal_all(bool won)
+{
+  if (won)
   {
-    if (won)
+    for (auto cell : this->safe_cells)
+      cell->reveal();
+  }
+  else
+  {
+    for (auto cell : this->bombs)
+      cell->reveal();
+  }
+}
+
+/// @brief Flags the cell selected by the pointer.
+void Grid::flag()
+{
+  this->pointer->get_cell()->flag();
+}
+
+/// @brief Verifies if all the bombs where flagged of all the safe cells were revelled.
+void Grid::check_state()
+{
+  // Verifies that all bombs were flagged.
+  bool all_flagged = true;
+
+  for (auto bomb : this->bombs)
+  {
+    if (!bomb->has_flag)
+      all_flagged = false;
+  }
+
+  if (all_flagged)
+  {
+    this->reveal_all(false);
+    this->state->notify(new GridStateEvent(true));
+  }
+
+  // Verifies that all safe squares were revealed.
+  bool all_revealed = true;
+
+  for (auto cell : this->safe_cells)
+  {
+    if (!cell->is_revealed)
+      all_revealed = false;
+  }
+
+  if (all_revealed)
+  {
+    this->reveal_all(false);
+    this->state->notify(new GridStateEvent(true));
+  }
+}
+
+/// @brief Puts the cell pointed by this grid's pointer in focus.
+void Grid::focus()
+{
+  if (this->focused != NULL)
+  {
+    this->focused->is_focused = false;
+  }
+
+  this->focused = this->pointer->get_cell();
+  this->focused->is_focused = true;
+}
+
+void Grid::flag_at(int x, int y)
+{
+  this->get_cell(x, y)->flag();
+}
+
+void Grid::reveal_at(int x, int y)
+{
+  this->get_cell(x, y)->reveal();
+}
+
+std::string Grid::to_save()
+{
+  std::string data;
+
+  data += this->width;
+  data += this->height;
+
+  for (auto y = 0; y < this->height; y++)
+  {
+    for (auto x = 0; x < this->width; x++)
     {
-      for (auto cell : this->safe_cells)
-        cell->reveal();
+      auto cell = this->get_cell(x, y);
+
+      auto state = (cell->has_bomb << 2) | (cell->has_flag << 1) | cell->is_revealed;
+
+      data += state + 8;
+    }
+  }
+
+  return data;
+}
+
+void Grid::from_save(std::string data)
+{
+  int width = data[0];
+  int height = data[1];
+
+  this->width = width;
+  this->height = height;
+
+  this->cells.clear();
+  this->bombs.clear();
+  this->safe_cells.clear();
+
+  for (auto y = 0; y < height; y++)
+  {
+    for (auto x = 0; x < width; x++)
+    {
+      auto c = new GridCell(x, y);
+
+      this->cells.push_back(c);
+    }
+  }
+
+  for (auto y = 0; y < height; y++)
+  {
+    for (auto x = 0; x < width; x++)
+    {
+      int state = data[2 + y * width + x];
+
+      if (state & 4)
+        this->place_bomb_at(x, y);
+
+      if (state & 2)
+      {
+        this->flag_at(x, y);
+      }
+      else if (state & 1)
+      {
+        this->reveal_at(x, y);
+      }
+    }
+  }
+
+  for (auto cell : this->cells)
+  {
+    if (cell->has_bomb)
+    {
+      this->bombs.push_back(cell);
     }
     else
     {
-      for (auto cell : this->bombs)
-        cell->reveal();
+      this->safe_cells.push_back(cell);
     }
   }
-
-  /// @brief Flags the cell selected by the pointer.
-  void Grid::flag()
-  {
-    this->pointer->get_cell()->flag();
-  }
-
-  /// @brief Verifies if all the bombs where flagged of all the safe cells were revelled.
-  void Grid::check_state()
-  {
-    // Verifies that all bombs were flagged.
-    bool all_flagged = true;
-
-    for (auto bomb : this->bombs)
-    {
-      if (!bomb->has_flag)
-        all_flagged = false;
-    }
-
-    if (all_flagged)
-    {
-      this->reveal_all(false);
-      this->state->notify(new GridStateEvent(true));
-    }
-
-    // Verifies that all safe squares were revealed.
-    bool all_revealed = true;
-
-    for (auto cell : this->safe_cells)
-    {
-      if (!cell->is_revealed)
-        all_revealed = false;
-    }
-
-    if (all_revealed)
-    {
-      this->reveal_all(false);
-      this->state->notify(new GridStateEvent(true));
-    }
-  }
-
-  /// @brief Puts the cell pointed by this grid's pointer in focus.
-  void Grid::focus()
-  {
-    if (this->focused != NULL)
-    {
-      this->focused->is_focused = false;
-    }
-
-    this->focused = this->pointer->get_cell();
-    this->focused->is_focused = true;
-  }
-
-  void Grid::flag_at(int x, int y)
-  {
-    this->get_cell(x, y)->flag();
-  }
-
-  void Grid::reveal_at(int x, int y)
-  {
-    this->get_cell(x, y)->reveal();
-  }
-
-  string Grid::to_save()
-  {
-    string data;
-
-    data += this->width;
-    data += this->height;
-
-    for (auto y = 0; y < this->height; y++)
-    {
-      for (auto x = 0; x < this->width; x++)
-      {
-        auto cell = this->get_cell(x, y);
-
-        auto state = (cell->has_bomb << 2) | (cell->has_flag << 1) | cell->is_revealed;
-
-        data += state + 8;
-      }
-    }
-
-    return data;
-  }
-
-  void Grid::from_save(string data)
-  {
-    int width = data[0];
-    int height = data[1];
-
-    this->width = width;
-    this->height = height;
-
-    this->cells.clear();
-    this->bombs.clear();
-    this->safe_cells.clear();
-
-    for (auto y = 0; y < height; y++)
-    {
-      for (auto x = 0; x < width; x++)
-      {
-        auto c = new GridCell(x, y);
-
-        this->cells.push_back(c);
-      }
-    }
-
-    for (auto y = 0; y < height; y++)
-    {
-      for (auto x = 0; x < width; x++)
-      {
-        int state = data[2 + y * width + x];
-
-        if (state & 4)
-          this->place_bomb_at(x, y);
-
-        if (state & 2)
-        {
-          this->flag_at(x, y);
-        }
-        else if (state & 1)
-        {
-          this->reveal_at(x, y);
-        }
-      }
-    }
-
-    for (auto cell : this->cells)
-    {
-      if (cell->has_bomb)
-      {
-        this->bombs.push_back(cell);
-      }
-      else
-      {
-        this->safe_cells.push_back(cell);
-      }
-    }
-  }
-
-  // #endregion Grid
 }
+
+// #endregion Grid
 
 /// @brief Renders a grid cell when a render event is triggered.
 /// @param cell Pointer to the grid cell to render.
 /// @param event Render event that triggered the render.
-void render_cell(std::GridCell *cell, std::RenderEvent *event)
+void render_cell(GridCell *cell, RenderEvent *event)
 {
   if (cell->is_focused)
     attron(A_DIM);
@@ -586,7 +583,7 @@ void render_cell(std::GridCell *cell, std::RenderEvent *event)
 /// @brief Render a grid object when a render event is triggered.
 /// @param grid Pointer to the grid to render.
 /// @param event Render event that triggered the render.
-void render_grid(std::Grid *grid, std::RenderEvent *event)
+void render_grid(Grid *grid, RenderEvent *event)
 {
   // Necessary for printing wide chars.
   attron(A_ALTCHARSET);
@@ -605,7 +602,7 @@ void render_grid(std::Grid *grid, std::RenderEvent *event)
 
   for (auto cell : grid->get_cells())
   {
-    auto cell_event = new std::RenderEvent(event->width, event->height, event->x - grid->width, event->y);
+    auto cell_event = new RenderEvent(event->width, event->height, event->x - grid->width, event->y);
 
     render_cell(cell, cell_event);
   }

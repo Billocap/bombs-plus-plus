@@ -5,7 +5,7 @@
 
 #include "grid.h"
 
-void render_cell(std::GridCell *cell, std::RenderEvent *event);
-void render_grid(std::Grid *grid, std::RenderEvent *event);
+void render_cell(GridCell *cell, RenderEvent *event);
+void render_grid(Grid *grid, RenderEvent *event);
 
 #endif

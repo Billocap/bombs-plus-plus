@@ -7,64 +7,61 @@
 
 #include "menu.h"
 
-namespace std
+/// @brief Represents a menu option that does nothing.
+class EmptyOption : public IMenuAction
 {
-  /// @brief Represents a menu option that does nothing.
-  class EmptyOption : public IMenuAction
-  {
-  public:
-    void execute();
-  };
+public:
+  void execute();
+};
 
-  /// @brief Represents a menu option that loads previous saves.
-  class ContinueOption : public IMenuAction
-  {
-  public:
-    ContinueOption(Game *game);
+/// @brief Represents a menu option that loads previous saves.
+class ContinueOption : public IMenuAction
+{
+public:
+  ContinueOption(Game *game);
 
-    void execute();
+  void execute();
 
-  private:
-    Game *game;
-  };
+private:
+  Game *game;
+};
 
-  /// @brief Represents a menu option that exits the game.
-  class ExitOption : public IMenuAction
-  {
-  public:
-    ExitOption(Game *game);
+/// @brief Represents a menu option that exits the game.
+class ExitOption : public IMenuAction
+{
+public:
+  ExitOption(Game *game);
 
-    void execute();
+  void execute();
 
-  private:
-    Game *game;
-  };
+private:
+  Game *game;
+};
 
-  /// @brief Represents a menu option that changes the current screen.
-  class GoToOption : public IMenuAction
-  {
-  public:
-    GoToOption(Game *game, string name);
+/// @brief Represents a menu option that changes the current screen.
+class GoToOption : public IMenuAction
+{
+public:
+  GoToOption(Game *game, std::string name);
 
-    void execute();
+  void execute();
 
-  private:
-    Game *game;
-    string name;
-  };
+private:
+  Game *game;
+  std::string name;
+};
 
-  /// @brief Represents a menu options that starts a new game.
-  class NewGameOption : public IMenuAction
-  {
-  public:
-    NewGameOption(Game *game, Difficulty diff);
+/// @brief Represents a menu options that starts a new game.
+class NewGameOption : public IMenuAction
+{
+public:
+  NewGameOption(Game *game, Difficulty diff);
 
-    void execute();
+  void execute();
 
-  private:
-    Game *game;
-    Difficulty diff;
-  };
-}
+private:
+  Game *game;
+  Difficulty diff;
+};
 
 #endif

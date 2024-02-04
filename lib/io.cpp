@@ -1,64 +1,61 @@
 #include <io.h>
 
-namespace std
+/// @brief Reads a basic text file.
+/// @param path File path.
+/// @return A vector containing all of the lines in the file.
+std::vector<std::string> read_file(std::string path)
 {
-  /// @brief Reads a basic text file.
-  /// @param path File path.
-  /// @return A vector containing all of the lines in the file.
-  vector<string> read_file(string path)
+  std::ifstream file(path);
+  std::vector<std::string> data;
+
+  if (file.is_open())
   {
-    ifstream file(path);
-    vector<string> data;
+    std::string line;
 
-    if (file.is_open())
+    while (getline(file, line))
     {
-      string line;
-
-      while (getline(file, line))
-      {
-        data.push_back(line);
-      }
-
-      file.close();
+      data.push_back(line);
     }
 
-    return data;
+    file.close();
   }
 
-  string read_save(string path)
+  return data;
+}
+
+std::string read_save(std::string path)
+{
+  std::ifstream file(path);
+  std::string data;
+
+  if (file.is_open())
   {
-    ifstream file(path);
-    string data;
+    std::string line;
 
-    if (file.is_open())
+    while (getline(file, line))
     {
-      string line;
-
-      while (getline(file, line))
-      {
-        data += line;
-      }
-
-      file.close();
+      data += line;
     }
 
-    return data;
-  };
-
-  void write_save(string path, string data)
-  {
-    ofstream file(path);
-
-    if (file.is_open())
-    {
-      file << data;
-
-      file.close();
-    }
+    file.close();
   }
 
-  void delete_save(string path)
+  return data;
+};
+
+void write_save(std::string path, std::string data)
+{
+  std::ofstream file(path);
+
+  if (file.is_open())
   {
-    remove(path.c_str());
+    file << data;
+
+    file.close();
   }
+}
+
+void delete_save(std::string path)
+{
+  remove(path.c_str());
 }

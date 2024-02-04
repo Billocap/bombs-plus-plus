@@ -6,42 +6,39 @@
 #include <events/render.h>
 #include <grid/events.h>
 
-namespace std
+class Game;
+
+class GameRenderHandler : public IEventHandler<RenderEvent>
 {
-  class Game;
+public:
+  GameRenderHandler(Game *game);
 
-  class GameRenderHandler : public IEventHandler<RenderEvent>
-  {
-  public:
-    GameRenderHandler(Game *game);
+  void notify(RenderEvent *event);
 
-    void notify(RenderEvent *event);
+private:
+  Game *game;
+};
 
-  private:
-    Game *game;
-  };
+class GameKeyboardHandler : public IEventHandler<KeyboardEvent>
+{
+public:
+  GameKeyboardHandler(Game *game);
 
-  class GameKeyboardHandler : public IEventHandler<KeyboardEvent>
-  {
-  public:
-    GameKeyboardHandler(Game *game);
+  void notify(KeyboardEvent *event);
 
-    void notify(KeyboardEvent *event);
+private:
+  Game *game;
+};
 
-  private:
-    Game *game;
-  };
+class GridStateHandler : public IEventHandler<GridStateEvent>
+{
+public:
+  GridStateHandler(Game *game);
 
-  class GridStateHandler : public IEventHandler<GridStateEvent>
-  {
-  public:
-    GridStateHandler(Game *game);
+  void notify(GridStateEvent *event);
 
-    void notify(GridStateEvent *event);
-
-  private:
-    Game *game;
-  };
-}
+private:
+  Game *game;
+};
 
 #endif

@@ -17,7 +17,7 @@ class TextBannerRenderHandler
 public:
   TextBannerRenderHandler(TextBanner *banner);
 
-  void notify(std::RenderEvent *event);
+  void notify(RenderEvent *event);
 
 private:
   TextBanner *banner;

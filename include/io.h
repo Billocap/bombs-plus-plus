@@ -13,13 +13,10 @@
 #include <vector>
 #include <string>
 
-namespace std
-{
-  vector<string> read_file(string path);
+std::vector<std::string> read_file(std::string path);
 
-  string read_save(string path);
-  void write_save(string path, string data);
-  void delete_save(string path);
-}
+std::string read_save(std::string path);
+void write_save(std::string path, std::string data);
+void delete_save(std::string path);
 
 #endif

@@ -7,7 +7,7 @@ TextBannerRenderHandler::TextBannerRenderHandler(TextBanner *banner)
   this->banner = banner;
 }
 
-void TextBannerRenderHandler::notify(std::RenderEvent *event)
+void TextBannerRenderHandler::notify(RenderEvent *event)
 {
   int _y = 0;
 
@@ -35,7 +35,7 @@ void TextBannerRenderHandler::notify(std::RenderEvent *event)
 TextBanner::TextBanner(std::string path)
 {
   this->on_render = new TextBannerRenderHandler(this);
-  this->data = std::read_file(path);
+  this->data = read_file(path);
 }
 
 // #endregion TextBanner

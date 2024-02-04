@@ -5,7 +5,7 @@
 
 #include "menu.h"
 
-int render_option(std::MenuOption *option, std::RenderEvent *event);
-void render_menu(std::Menu *menu, std::RenderEvent *event);
+int render_option(MenuOption *option, RenderEvent *event);
+void render_menu(Menu *menu, RenderEvent *event);
 
 #endif
