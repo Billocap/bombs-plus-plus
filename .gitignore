@@ -4,3 +4,6 @@ obj
 
 # Editor settings
 .vscode
+
+# It shouldn't leak your save
+save
