@@ -1,8 +1,8 @@
 #ifndef MENU_EVENTS_H
 #define MENU_EVENTS_H
 
-#include <events/kbd.h>
-#include <events/render.h>
+#include <events/handler.h>
+#include <events/events.h>
 
 class Menu;
 

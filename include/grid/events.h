@@ -1,10 +1,9 @@
 #ifndef GRID_EVENTS_H
 #define GRID_EVENTS_H
 
+#include <events/handler.h>
+#include <events/dispatcher.h>
 #include <events/events.h>
-#include <events/kbd.h>
-#include <events/move.h>
-#include <events/render.h>
 #include <io.h>
 
 class Grid;
@@ -56,7 +55,7 @@ public:
   GridStateEvent(bool won);
 };
 
-class GridStateDispatcher : public IEventDispatcher<GridStateEvent>
+class GridStateDispatcher : public EventDispatcher<GridStateEvent>
 {
 public:
   void subscribe(IEventHandler<GridStateEvent> *handler);

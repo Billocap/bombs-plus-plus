@@ -1,7 +1,8 @@
 #ifndef GRID_POINTER_H
 #define GRID_POINTER_H
 
-#include <events/move.h>
+#include <events/dispatcher.h>
+#include <events/events.h>
 
 #include "grid.h"
 #include "cell.h"
@@ -12,7 +13,7 @@ class Grid;
 class GridPointer
 {
 public:
-  MovementDispatcher *movement;
+  EventDispatcher<MovementEvent> *movement;
 
   GridPointer(Grid *parent);
 

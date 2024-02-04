@@ -1,9 +1,8 @@
 #ifndef GAME_EVENTS_H
 #define GAME_EVENTS_H
 
+#include <events/handler.h>
 #include <events/events.h>
-#include <events/kbd.h>
-#include <events/render.h>
 #include <grid/events.h>
 
 class Game;

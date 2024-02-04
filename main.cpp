@@ -6,8 +6,8 @@
 #include <filesystem>
 #include <fstream>
 
-#include <events/kbd.h>
-#include <events/render.h>
+#include <events/dispatcher.h>
+#include <events/events.h>
 #include <game/game.h>
 #include <grid/grid.h>
 #include <menu/menu.h>
@@ -53,11 +53,11 @@ int main()
   main_game.add_menu("main", &menu);
   main_game.add_menu("diff", &diff_menu);
 
-  KeyboardDispatcher keyboard;
+  EventDispatcher<KeyboardEvent> keyboard;
 
   keyboard.subscribe(main_game.on_key_press);
 
-  RenderDispatcher renderer;
+  EventDispatcher<RenderEvent> renderer;
 
   renderer.subscribe(main_game.on_render);
 

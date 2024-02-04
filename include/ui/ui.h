@@ -5,7 +5,7 @@
 #include <string>
 #include <ncursesw/ncurses.h>
 
-#include <events/render.h>
+#include <events/events.h>
 #include <io.h>
 
 // #region Banner

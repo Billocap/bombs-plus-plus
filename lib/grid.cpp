@@ -83,7 +83,7 @@ bool GridCell::reveal()
 GridPointer::GridPointer(Grid *parent)
 {
   this->parent = parent;
-  this->movement = new MovementDispatcher();
+  this->movement = new EventDispatcher<MovementEvent>();
 }
 
 /// @brief Moves the pointer up one cell.
