@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include <events/dispatcher.h>
+
 #include "ptr.h"
 #include "events.h"
 #include "cell.h"
@@ -22,9 +24,10 @@ public:
   /// @brief Grid pointer keeps track of the current selected cell.
   GridPointer *pointer;
   /// @brief Event dispatcher for grid state changes.
-  GridStateDispatcher *state;
+  EventDispatcher<GridStateEvent> *state;
 
   Grid(int width, int height);
+  ~Grid();
 
   GridCell *get_cell(int x, int y);
   std::vector<GridCell *> get_cells();
@@ -36,7 +39,7 @@ public:
   void reveal_all(bool won);
   void flag();
   void flag_at(int x, int y);
-  void focus();
+  void focus(int x, int y);
   void check_state();
   std::string to_save();
   void from_save(std::string data);

@@ -55,14 +55,6 @@ public:
   GridStateEvent(bool won);
 };
 
-class GridStateDispatcher : public EventDispatcher<GridStateEvent>
-{
-public:
-  void subscribe(IEventHandler<GridStateEvent> *handler);
-  void unsubscribe(IEventHandler<GridStateEvent> *handler);
-  void notify(GridStateEvent *event);
-};
-
 // #endregion Events
 
 #endif

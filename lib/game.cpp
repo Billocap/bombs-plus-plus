@@ -40,18 +40,11 @@ void GameKeyboardHandler::notify(KeyboardEvent *event)
 {
   if (this->game->screen == "game")
   {
-    if (this->game->is_paused())
+    if (this->game->finished)
     {
-      switch (event->key)
-      {
-      case IO_KEY_MENU:
-        this->game->stop();
-        break;
+      delete this->game->get_grid();
 
-      default:
-        this->game->go_to("main");
-        break;
-      }
+      this->game->go_to("main");
     }
     else
     {
@@ -180,6 +173,8 @@ void Game::load_data()
 
   this->finished = false;
   this->won = false;
+
+  delete this->grid;
 
   this->grid = new Grid(8, 8);
 

@@ -11,28 +11,6 @@ GridStateEvent::GridStateEvent(bool won)
   this->won = won;
 }
 
-void GridStateDispatcher::subscribe(IEventHandler<GridStateEvent> *handler)
-{
-  this->handlers.push_back(handler);
-
-  handler->id = this->handlers.size();
-}
-
-void GridStateDispatcher::unsubscribe(IEventHandler<GridStateEvent> *handler)
-{
-  auto it = this->handlers.begin() + handler->id;
-
-  this->handlers.erase(it);
-}
-
-void GridStateDispatcher::notify(GridStateEvent *event)
-{
-  for (auto handler : this->handlers)
-  {
-    handler->notify(event);
-  }
-}
-
 // #endregion GridStateEvent
 
 // #region GridCell
@@ -181,7 +159,7 @@ PointerMovementHandler::PointerMovementHandler(Grid *grid)
 
 void PointerMovementHandler::notify(MovementEvent *event)
 {
-  this->grid->focus();
+  this->grid->focus(event->x, event->y);
 }
 
 // #endregion GridKeyboardHandler
@@ -199,7 +177,7 @@ Grid::Grid(int width, int height)
   this->cells = std::vector<GridCell *>();
   this->focused = NULL;
 
-  this->state = new GridStateDispatcher();
+  this->state = new EventDispatcher<GridStateEvent>();
 
   this->on_key_press = new GridKeyboardHandler(this);
   this->on_render = new GridRenderHandler(this);
@@ -217,6 +195,13 @@ Grid::Grid(int width, int height)
       this->cells.push_back(c);
     }
   }
+}
+
+/// @brief Makes sure all of the cells are also destroyed.
+Grid::~Grid()
+{
+  for (auto cell : this->cells)
+    delete cell;
 }
 
 /// @brief Returns the GridCell at the specified position.
@@ -440,15 +425,17 @@ void Grid::check_state()
   }
 }
 
-/// @brief Puts the cell pointed by this grid's pointer in focus.
-void Grid::focus()
+/// @brief Puts the cell with the specified coordinates in focus.
+/// @param x X coordinate of the cell to focus.
+/// @param y Y coordinate of the cell to focus.
+void Grid::focus(int x, int y)
 {
   if (this->focused != NULL)
   {
     this->focused->is_focused = false;
   }
 
-  this->focused = this->pointer->get_cell();
+  this->focused = this->get_cell(x, y);
   this->focused->is_focused = true;
 }
 

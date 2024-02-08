@@ -13,7 +13,7 @@ ENTRY=main
 # Flags only used when compiling the entry file
 ENTRY_FLAGS=-l ncursesw
 
-FLAGS=-pedantic -I ./include
+FLAGS=-pedantic -I ./include -Wall -Wextra -Werror -Wpedantic -pedantic-errors
 DEBUG_FLAGS=$(FLAGS) -g
 
 SRC_FILES=$(shell find . -regex ".*\.cpp")

@@ -14,8 +14,7 @@ enum Difficulty
 {
   D_EASY,
   D_MEDIUM,
-  D_HARD,
-  D_CUSTOM
+  D_HARD
 };
 
 class Game
